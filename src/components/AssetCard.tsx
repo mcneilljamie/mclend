@@ -2,6 +2,7 @@ import { TrendingUp, TrendingDown, DollarSign, Activity, Lock } from 'lucide-rea
 import { Asset } from '../types/aave';
 import { useAaveData } from '../hooks/useAaveData';
 import { useUserAccount, formatUSD } from '../hooks/useUserAccount';
+import { usePortfolioSummary } from '../hooks/usePortfolioSummary';
 
 interface AssetCardProps {
   asset: Asset;
@@ -38,6 +39,7 @@ const AssetIcon = ({ icon, symbol }: { icon: string; symbol: string }) => {
 export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: AssetCardProps) => {
   const { assetData, userPosition, loading } = useAaveData(asset);
   const { accountData } = useUserAccount();
+  const { summary } = usePortfolioSummary();
 
   if (loading || !assetData) {
     return (
@@ -54,8 +56,9 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
 
   const hasSupplied = userPosition && parseFloat(userPosition.supplied) > 0;
   const hasBorrowed = userPosition && parseFloat(userPosition.borrowed) > 0;
-  const hasCollateral = accountData && accountData.totalCollateralBase > 0n;
-  const availableToBorrowUSD = accountData && accountData.totalCollateralBase > 0n
+  // Use portfolio summary for accurate collateral check
+  const hasCollateral = summary.totalDepositsUSD > 0;
+  const availableToBorrowUSD = summary.totalDepositsUSD > 0 && accountData
     ? parseFloat(formatUSD(accountData.availableBorrowsBase))
     : 0;
 
