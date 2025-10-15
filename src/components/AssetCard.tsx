@@ -55,7 +55,9 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
   const hasSupplied = userPosition && parseFloat(userPosition.supplied) > 0;
   const hasBorrowed = userPosition && parseFloat(userPosition.borrowed) > 0;
   const hasCollateral = accountData && accountData.totalCollateralBase > 0n;
-  const availableToBorrowUSD = accountData ? parseFloat(formatUSD(accountData.availableBorrowsBase)) : 0;
+  const availableToBorrowUSD = accountData && accountData.totalCollateralBase > 0n
+    ? parseFloat(formatUSD(accountData.availableBorrowsBase))
+    : 0;
 
   return (
     <div className="bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-700">
