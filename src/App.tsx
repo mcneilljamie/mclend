@@ -63,11 +63,11 @@ function App() {
             <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
               Connect your wallet to supply and borrow WBTC and USDT using Aave's liquidity pools on Ethereum mainnet.
             </p>
-            <div className="bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl mx-auto border border-slate-700 mb-8">
-              <h3 className="text-xl font-bold text-white mb-4">Features</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="bg-slate-800 rounded-2xl shadow-lg p-10 max-w-2xl mx-auto border border-slate-700 mb-8">
+              <h3 className="text-xl font-bold text-white mb-6">Features</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <span className="text-emerald-400 font-bold">✓</span>
                   </div>
                   <div>
@@ -75,8 +75,8 @@ function App() {
                     <p className="text-sm text-slate-400">Earn interest on WBTC & USDT</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-teal-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 bg-teal-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <span className="text-teal-400 font-bold">✓</span>
                   </div>
                   <div>
@@ -84,8 +84,8 @@ function App() {
                     <p className="text-sm text-slate-400">Borrow against your collateral</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 bg-cyan-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <span className="text-cyan-400 font-bold">✓</span>
                   </div>
                   <div>
@@ -93,8 +93,8 @@ function App() {
                     <p className="text-sm text-slate-400">Live rates from Aave protocol</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <span className="text-amber-400 font-bold">✓</span>
                   </div>
                   <div>
