@@ -25,6 +25,11 @@ export const useDailyInterest = () => {
     const fetchDailyInterest = async () => {
       try {
         setLoading(true);
+
+        const btcPriceResponse = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+        const btcPriceData = await btcPriceResponse.json();
+        const btcPrice = parseFloat(btcPriceData.data.amount);
+
         const poolContract = new Contract(AAVE_POOL_ADDRESS, POOL_ABI, provider);
 
         let totalSupplyInterestPerDay = 0;
@@ -48,7 +53,7 @@ export const useDailyInterest = () => {
 
           let assetPrice = 0;
           if (asset.symbol === 'WBTC') {
-            assetPrice = 100000;
+            assetPrice = btcPrice;
           } else if (asset.symbol === 'USDT') {
             assetPrice = 1;
           }
