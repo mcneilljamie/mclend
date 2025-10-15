@@ -6,8 +6,6 @@ export const UserDashboard = () => {
   const { accountData, loading } = useUserAccount();
   const { interestData, loading: interestLoading } = useDailyInterest();
 
-  if (!accountData && !loading) return null;
-
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 animate-pulse">
@@ -27,6 +25,8 @@ export const UserDashboard = () => {
   const totalDebt = parseFloat(formatUSD(accountData.totalDebtBase));
   const availableBorrows = parseFloat(formatUSD(accountData.availableBorrowsBase));
   const healthFactor = formatHealthFactor(accountData.healthFactor);
+
+  if (totalCollateral === 0 && totalDebt === 0) return null;
 
   const getHealthFactorColor = (hf: string) => {
     if (hf === '∞') return 'text-emerald-400';

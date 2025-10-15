@@ -151,8 +151,16 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
             onClick={() => onSupply(userPosition?.walletBalance)}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md"
           >
-            Supply
+            {hasSupplied ? 'Supply More' : 'Supply'}
           </button>
+          {hasSupplied && (
+            <button
+              onClick={() => onWithdraw(userPosition?.supplied)}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md"
+            >
+              Withdraw
+            </button>
+          )}
           <div className="relative">
             <button
               onClick={() => hasCollateral && onBorrow()}
@@ -160,7 +168,7 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
               className="w-full bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md disabled:shadow-none flex items-center justify-center gap-2"
             >
               {!hasCollateral && <Lock className="w-4 h-4" />}
-              Borrow
+              {hasBorrowed ? 'Borrow More' : 'Borrow'}
             </button>
             {!hasCollateral && (
               <div className="absolute -bottom-6 left-0 right-0 text-xs text-slate-500 text-center">
@@ -173,18 +181,10 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
               </div>
             )}
           </div>
-          {hasSupplied && (
-            <button
-              onClick={() => onWithdraw(userPosition?.supplied)}
-              className="bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md"
-            >
-              Withdraw
-            </button>
-          )}
           {hasBorrowed && (
             <button
               onClick={() => onRepay(userPosition?.walletBalance)}
-              className="bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md"
+              className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md"
             >
               Repay
             </button>
