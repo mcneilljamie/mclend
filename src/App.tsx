@@ -53,7 +53,7 @@ function App() {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!isConnected ? (
-          <div className="text-center py-20">
+          <div className="text-center py-16">
             <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl">
               <span className="text-white text-3xl font-black">M</span>
             </div>
@@ -63,7 +63,7 @@ function App() {
             <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
               Connect your wallet to supply and borrow WBTC and USDT using Aave's liquidity pools on Ethereum mainnet.
             </p>
-            <div className="bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl mx-auto border border-slate-700">
+            <div className="bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl mx-auto border border-slate-700 mb-8">
               <h3 className="text-xl font-bold text-white mb-4">Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                 <div className="flex items-start gap-3">
@@ -103,6 +103,9 @@ function App() {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="text-center text-slate-400 text-sm">
+              Powered by Aave V4
             </div>
           </div>
         ) : (
