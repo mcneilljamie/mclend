@@ -21,8 +21,6 @@ export const UserDashboard = () => {
     );
   }
 
-  if (!summary.hasAnyPosition) return null;
-
   if (!accountData) return null;
 
   const totalCollateral = parseFloat(formatUSD(accountData.totalCollateralBase));
