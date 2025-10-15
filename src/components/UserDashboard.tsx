@@ -1,8 +1,10 @@
-import { Shield, TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { Shield, TrendingUp, TrendingDown, Activity, DollarSign } from 'lucide-react';
 import { useUserAccount, formatHealthFactor, formatUSD } from '../hooks/useUserAccount';
+import { useDailyInterest } from '../hooks/useDailyInterest';
 
 export const UserDashboard = () => {
   const { accountData, loading } = useUserAccount();
+  const { interestData, loading: interestLoading } = useDailyInterest();
 
   if (!accountData && !loading) return null;
 
@@ -10,8 +12,8 @@ export const UserDashboard = () => {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 animate-pulse">
         <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-24 bg-gray-200 rounded-xl"></div>
           ))}
         </div>
@@ -36,6 +38,9 @@ export const UserDashboard = () => {
 
   const netWorth = totalCollateral - totalDebt;
 
+  const dailyInterest = interestData?.dailyInterest ?? 0;
+  const isDailyInterestPositive = dailyInterest >= 0;
+
   return (
     <div className="bg-slate-800 rounded-xl shadow-md p-8 mb-8 border border-slate-700">
       <div className="flex items-center gap-2 mb-7">
@@ -43,7 +48,7 @@ export const UserDashboard = () => {
         <h2 className="text-lg font-bold text-white">Your Account Overview</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
         <div className="bg-slate-700/50 rounded-lg p-6 border border-teal-500/30">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-teal-400" />
@@ -82,6 +87,20 @@ export const UserDashboard = () => {
           <p className={`text-xl font-bold ${getHealthFactorColor(healthFactor)}`}>
             {healthFactor}
           </p>
+        </div>
+
+        <div className={`bg-slate-700/50 rounded-lg p-6 border ${isDailyInterestPositive ? 'border-cyan-500/30' : 'border-orange-500/30'}`}>
+          <div className="flex items-center gap-2 mb-3">
+            <DollarSign className={`w-4 h-4 ${isDailyInterestPositive ? 'text-cyan-400' : 'text-orange-400'}`} />
+            <span className="text-sm font-medium text-slate-300">Daily Interest</span>
+          </div>
+          {interestLoading ? (
+            <div className="h-7 bg-slate-600 rounded animate-pulse"></div>
+          ) : (
+            <p className={`text-xl font-bold ${isDailyInterestPositive ? 'text-cyan-400' : 'text-orange-400'}`}>
+              {isDailyInterestPositive ? '+' : ''}${Math.abs(dailyInterest).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          )}
         </div>
       </div>
 
