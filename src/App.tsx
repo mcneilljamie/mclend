@@ -31,7 +31,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
       <header className="bg-slate-800/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -51,7 +51,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {!isConnected ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl">
@@ -104,9 +104,6 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="text-center text-slate-400 text-sm">
-              Powered by Aave V4
-            </div>
           </div>
         ) : (
           <>
@@ -140,6 +137,12 @@ function App() {
           maxAmount={modal.maxAmount}
         />
       )}
+
+      <footer className="bg-slate-800/50 backdrop-blur-sm border-t border-slate-700 py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-slate-400 text-sm">Powered by Aave</p>
+        </div>
+      </footer>
     </div>
   );
 }
