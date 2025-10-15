@@ -59,28 +59,28 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
 
   return (
     <div className="bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-700">
-      <div className="bg-gradient-to-r from-slate-700 to-slate-700 p-7 border-b border-slate-600">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center shadow-sm p-2">
+      <div className="bg-gradient-to-r from-slate-700 to-slate-700 p-8 border-b border-slate-600">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center shadow-sm p-2">
             <AssetIcon icon={asset.icon} symbol={asset.symbol} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white">{asset.symbol}</h3>
+            <h3 className="text-2xl font-bold text-white">{asset.symbol}</h3>
             <p className="text-sm text-slate-400">{asset.name}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-emerald-500/10 rounded-lg p-4.5 shadow-sm border border-emerald-500/20">
-            <div className="flex items-center gap-1 mb-1.5">
+        <div className="grid grid-cols-2 gap-5">
+          <div className="bg-emerald-500/10 rounded-lg p-5 shadow-sm border border-emerald-500/20">
+            <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
               <span className="text-xs font-medium text-slate-300">Supply APY</span>
             </div>
             <p className="text-xl font-bold text-emerald-400">{assetData.supplyAPY}%</p>
           </div>
 
-          <div className="bg-rose-500/10 rounded-lg p-4.5 shadow-sm border border-rose-500/20">
-            <div className="flex items-center gap-1 mb-1.5">
+          <div className="bg-rose-500/10 rounded-lg p-5 shadow-sm border border-rose-500/20">
+            <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="w-4 h-4 text-rose-400" />
               <span className="text-xs font-medium text-slate-300">Borrow APY</span>
             </div>
@@ -89,10 +89,10 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
         </div>
       </div>
 
-      <div className="p-7">
-        <div className="space-y-4 mb-7">
+      <div className="p-8">
+        <div className="space-y-5 mb-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-slate-400" />
               <span className="text-sm text-slate-400">Total Supplied</span>
             </div>
@@ -102,7 +102,7 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
           </div>
 
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-slate-400" />
               <span className="text-sm text-slate-400">Total Borrowed</span>
             </div>
@@ -125,10 +125,10 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
         </div>
 
         {userPosition && (hasSupplied || hasBorrowed) && (
-          <div className="bg-slate-700/50 rounded-lg p-5 mb-7 border border-slate-600">
-            <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2.5">Your Position</p>
+          <div className="bg-slate-700/50 rounded-lg p-6 mb-8 border border-slate-600">
+            <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-3">Your Position</p>
             {hasSupplied && (
-              <div className="flex justify-between items-center mb-1.5">
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-slate-400">Supplied</span>
                 <span className="text-sm font-bold text-emerald-400">
                   {parseFloat(userPosition.supplied).toLocaleString(undefined, { maximumFractionDigits: 6 })} {asset.symbol}
@@ -146,7 +146,7 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <button
             onClick={() => onSupply(userPosition?.walletBalance)}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-4 px-6 rounded-lg transition-colors shadow-sm hover:shadow-md"

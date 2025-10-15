@@ -37,15 +37,15 @@ export const UserDashboard = () => {
   const netWorth = totalCollateral - totalDebt;
 
   return (
-    <div className="bg-slate-800 rounded-xl shadow-md p-7 mb-6 border border-slate-700">
-      <div className="flex items-center gap-2 mb-6">
+    <div className="bg-slate-800 rounded-xl shadow-md p-8 mb-8 border border-slate-700">
+      <div className="flex items-center gap-2 mb-7">
         <Activity className="w-5 h-5 text-emerald-400" />
         <h2 className="text-lg font-bold text-white">Your Account Overview</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-700/50 rounded-lg p-5.5 border border-teal-500/30">
-          <div className="flex items-center gap-1.5 mb-2.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-slate-700/50 rounded-lg p-6 border border-teal-500/30">
+          <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-teal-400" />
             <span className="text-sm font-medium text-slate-300">Net Worth</span>
           </div>
@@ -54,8 +54,8 @@ export const UserDashboard = () => {
           </p>
         </div>
 
-        <div className="bg-slate-700/50 rounded-lg p-5.5 border border-emerald-500/30">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="bg-slate-700/50 rounded-lg p-6 border border-emerald-500/30">
+          <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-emerald-400" />
             <span className="text-sm font-medium text-slate-300">Total Collateral</span>
           </div>
@@ -64,8 +64,8 @@ export const UserDashboard = () => {
           </p>
         </div>
 
-        <div className="bg-slate-700/50 rounded-lg p-5.5 border border-rose-500/30">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="bg-slate-700/50 rounded-lg p-6 border border-rose-500/30">
+          <div className="flex items-center gap-2 mb-3">
             <TrendingDown className="w-4 h-4 text-rose-400" />
             <span className="text-sm font-medium text-slate-300">Total Borrowed</span>
           </div>
@@ -74,8 +74,8 @@ export const UserDashboard = () => {
           </p>
         </div>
 
-        <div className="bg-slate-700/50 rounded-lg p-5.5 border border-amber-500/30">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="bg-slate-700/50 rounded-lg p-6 border border-amber-500/30">
+          <div className="flex items-center gap-2 mb-3">
             <Shield className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-medium text-slate-300">Health Factor</span>
           </div>
@@ -86,7 +86,7 @@ export const UserDashboard = () => {
       </div>
 
       {totalDebt > 0 && (
-        <div className="mt-6 bg-slate-700/50 rounded-lg p-5.5 border border-slate-600">
+        <div className="mt-7 bg-slate-700/50 rounded-lg p-6 border border-slate-600">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-slate-300">Available to Borrow</span>
             <span className="text-sm font-bold text-white">
