@@ -84,7 +84,7 @@ export const useDailyInterest = () => {
     };
 
     fetchDailyInterest();
-    const interval = setInterval(fetchDailyInterest, 30000);
+    const interval = setInterval(fetchDailyInterest, 120000);
     return () => clearInterval(interval);
   }, [provider, account, isConnected]);
 

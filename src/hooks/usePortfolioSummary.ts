@@ -77,7 +77,7 @@ export const usePortfolioSummary = () => {
     };
 
     fetchSummary();
-    const interval = setInterval(fetchSummary, 30000);
+    const interval = setInterval(fetchSummary, 120000);
     return () => clearInterval(interval);
   }, [provider, account, isConnected]);
 

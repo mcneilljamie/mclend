@@ -79,7 +79,7 @@ export const useAaveData = (asset: Asset) => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 120000);
     return () => clearInterval(interval);
   }, [provider, account, isConnected, asset]);
 

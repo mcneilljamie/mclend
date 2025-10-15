@@ -37,7 +37,7 @@ export const useUserAccount = () => {
     };
 
     fetchAccountData();
-    const interval = setInterval(fetchAccountData, 30000);
+    const interval = setInterval(fetchAccountData, 120000);
     return () => clearInterval(interval);
   }, [provider, account, isConnected]);
 

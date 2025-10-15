@@ -48,7 +48,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0x1' }],
           });
-          window.location.reload();
+          const newProvider = new BrowserProvider(window.ethereum);
+          const newSigner = await newProvider.getSigner();
+          const newNetwork = await newProvider.getNetwork();
+          setProvider(newProvider);
+          setSigner(newSigner);
+          setChainId(Number(newNetwork.chainId));
           return;
         } catch (switchError: any) {
           if (switchError.code === 4902) {
@@ -99,8 +104,15 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    const handleChainChanged = () => {
-      window.location.reload();
+    const handleChainChanged = async () => {
+      if (!provider) return;
+      try {
+        const network = await provider.getNetwork();
+        setChainId(Number(network.chainId));
+      } catch (error) {
+        console.error('Chain change error:', error);
+        disconnect();
+      }
     };
 
     window.ethereum.on('accountsChanged', handleAccountsChanged);
@@ -110,7 +122,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
       window.ethereum?.removeListener('chainChanged', handleChainChanged);
     };
-  }, []);
+  }, [provider]);
 
   return (
     <Web3Context.Provider
