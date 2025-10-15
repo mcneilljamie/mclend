@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Coins } from 'lucide-react';
 import { WalletConnect } from './components/WalletConnect';
 import { AssetCard } from './components/AssetCard';
 import { UserDashboard } from './components/UserDashboard';
@@ -55,8 +54,8 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {!isConnected ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-              <Coins className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+              <span className="text-white text-3xl font-black">M</span>
             </div>
             <h2 className="text-3xl font-bold text-white mb-4">
               Welcome to McLend

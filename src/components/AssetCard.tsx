@@ -59,86 +59,86 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
 
   return (
     <div className="bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-700">
-      <div className="bg-gradient-to-r from-slate-700 to-slate-700 p-5 border-b border-slate-600">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center shadow-sm p-2">
+      <div className="bg-gradient-to-r from-slate-700 to-slate-700 p-4 border-b border-slate-600">
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center shadow-sm p-1.5">
             <AssetIcon icon={asset.icon} symbol={asset.symbol} />
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-white">{asset.symbol}</h3>
-            <p className="text-sm text-slate-400">{asset.name}</p>
+            <h3 className="text-xl font-bold text-white">{asset.symbol}</h3>
+            <p className="text-xs text-slate-400">{asset.name}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-emerald-500/10 rounded-lg p-4 shadow-sm border border-emerald-500/20">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-emerald-500/10 rounded-lg p-3 shadow-sm border border-emerald-500/20">
             <div className="flex items-center gap-1 mb-1">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-medium text-slate-300">Supply APY</span>
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs font-medium text-slate-300">Supply APY</span>
             </div>
-            <p className="text-2xl font-bold text-emerald-400">{assetData.supplyAPY}%</p>
+            <p className="text-xl font-bold text-emerald-400">{assetData.supplyAPY}%</p>
           </div>
 
-          <div className="bg-rose-500/10 rounded-lg p-4 shadow-sm border border-rose-500/20">
+          <div className="bg-rose-500/10 rounded-lg p-3 shadow-sm border border-rose-500/20">
             <div className="flex items-center gap-1 mb-1">
-              <TrendingDown className="w-4 h-4 text-rose-400" />
-              <span className="text-sm font-medium text-slate-300">Borrow APY</span>
+              <TrendingDown className="w-3.5 h-3.5 text-rose-400" />
+              <span className="text-xs font-medium text-slate-300">Borrow APY</span>
             </div>
-            <p className="text-2xl font-bold text-rose-400">{assetData.borrowAPY}%</p>
+            <p className="text-xl font-bold text-rose-400">{assetData.borrowAPY}%</p>
           </div>
         </div>
       </div>
 
-      <div className="p-5">
-        <div className="space-y-3 mb-5">
+      <div className="p-4">
+        <div className="space-y-2.5 mb-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-slate-400" />
-              <span className="text-sm text-slate-400">Total Supplied</span>
+              <Activity className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-xs text-slate-400">Total Supplied</span>
             </div>
-            <span className="text-base font-semibold text-white">
+            <span className="text-sm font-semibold text-white">
               {parseFloat(assetData.totalSupplied).toLocaleString(undefined, { maximumFractionDigits: 2 })} {asset.symbol}
             </span>
           </div>
 
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1.5">
-              <DollarSign className="w-4 h-4 text-slate-400" />
-              <span className="text-sm text-slate-400">Total Borrowed</span>
+              <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-xs text-slate-400">Total Borrowed</span>
             </div>
-            <span className="text-base font-semibold text-white">
+            <span className="text-sm font-semibold text-white">
               {parseFloat(assetData.totalBorrowed).toLocaleString(undefined, { maximumFractionDigits: 2 })} {asset.symbol}
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-400">Available Liquidity</span>
-            <span className="text-base font-semibold text-white">
+            <span className="text-xs text-slate-400">Available Liquidity</span>
+            <span className="text-sm font-semibold text-white">
               {parseFloat(assetData.availableLiquidity).toLocaleString(undefined, { maximumFractionDigits: 2 })} {asset.symbol}
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-400">Utilization Rate</span>
-            <span className="text-base font-semibold text-white">{assetData.utilizationRate}%</span>
+            <span className="text-xs text-slate-400">Utilization Rate</span>
+            <span className="text-sm font-semibold text-white">{assetData.utilizationRate}%</span>
           </div>
         </div>
 
         {userPosition && (hasSupplied || hasBorrowed) && (
-          <div className="bg-slate-700/50 rounded-lg p-4 mb-5 border border-slate-600">
-            <p className="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-2">Your Position</p>
+          <div className="bg-slate-700/50 rounded-lg p-3 mb-4 border border-slate-600">
+            <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1.5">Your Position</p>
             {hasSupplied && (
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-sm text-slate-400">Supplied</span>
-                <span className="text-base font-bold text-emerald-400">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs text-slate-400">Supplied</span>
+                <span className="text-sm font-bold text-emerald-400">
                   {parseFloat(userPosition.supplied).toLocaleString(undefined, { maximumFractionDigits: 6 })} {asset.symbol}
                 </span>
               </div>
             )}
             {hasBorrowed && (
               <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-400">Borrowed</span>
-                <span className="text-base font-bold text-rose-400">
+                <span className="text-xs text-slate-400">Borrowed</span>
+                <span className="text-sm font-bold text-rose-400">
                   {parseFloat(userPosition.borrowed).toLocaleString(undefined, { maximumFractionDigits: 6 })} {asset.symbol}
                 </span>
               </div>
@@ -146,10 +146,10 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
           <button
             onClick={() => onSupply(userPosition?.walletBalance)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-base font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm hover:shadow-md"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-sm hover:shadow-md"
           >
             Supply
           </button>
@@ -157,9 +157,9 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
             <button
               onClick={() => hasCollateral && onBorrow()}
               disabled={!hasCollateral}
-              className="w-full bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-base font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm hover:shadow-md disabled:shadow-none flex items-center justify-center gap-2"
+              className="w-full bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-sm hover:shadow-md disabled:shadow-none flex items-center justify-center gap-2"
             >
-              {!hasCollateral && <Lock className="w-4 h-4" />}
+              {!hasCollateral && <Lock className="w-3.5 h-3.5" />}
               Borrow
             </button>
             {!hasCollateral && (
@@ -176,7 +176,7 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
           {hasSupplied && (
             <button
               onClick={() => onWithdraw(userPosition?.supplied)}
-              className="bg-slate-600 hover:bg-slate-700 text-white text-base font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm hover:shadow-md"
+              className="bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-sm hover:shadow-md"
             >
               Withdraw
             </button>
@@ -184,7 +184,7 @@ export const AssetCard = ({ asset, onSupply, onBorrow, onWithdraw, onRepay }: As
           {hasBorrowed && (
             <button
               onClick={() => onRepay(userPosition?.walletBalance)}
-              className="bg-slate-600 hover:bg-slate-700 text-white text-base font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm hover:shadow-md"
+              className="bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-sm hover:shadow-md"
             >
               Repay
             </button>

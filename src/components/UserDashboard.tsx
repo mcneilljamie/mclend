@@ -37,63 +37,63 @@ export const UserDashboard = () => {
   const netWorth = totalCollateral - totalDebt;
 
   return (
-    <div className="bg-slate-800 rounded-xl shadow-md p-5 mb-6 border border-slate-700">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-6 h-6 text-emerald-400" />
-        <h2 className="text-xl font-bold text-white">Your Account Overview</h2>
+    <div className="bg-slate-800 rounded-xl shadow-md p-4 mb-5 border border-slate-700">
+      <div className="flex items-center gap-2 mb-3">
+        <Activity className="w-5 h-5 text-emerald-400" />
+        <h2 className="text-lg font-bold text-white">Your Account Overview</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-700/50 rounded-lg p-4 border border-teal-500/30">
-          <div className="flex items-center gap-1.5 mb-2">
-            <TrendingUp className="w-5 h-5 text-teal-400" />
-            <span className="text-sm font-medium text-slate-300">Net Worth</span>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="bg-slate-700/50 rounded-lg p-3 border border-teal-500/30">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <TrendingUp className="w-4 h-4 text-teal-400" />
+            <span className="text-xs font-medium text-slate-300">Net Worth</span>
           </div>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-xl font-bold text-white">
             ${netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
 
-        <div className="bg-slate-700/50 rounded-lg p-4 border border-emerald-500/30">
-          <div className="flex items-center gap-1.5 mb-2">
-            <TrendingUp className="w-5 h-5 text-emerald-400" />
-            <span className="text-sm font-medium text-slate-300">Total Collateral</span>
+        <div className="bg-slate-700/50 rounded-lg p-3 border border-emerald-500/30">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-medium text-slate-300">Total Collateral</span>
           </div>
-          <p className="text-2xl font-bold text-emerald-400">
+          <p className="text-xl font-bold text-emerald-400">
             ${totalCollateral.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
 
-        <div className="bg-slate-700/50 rounded-lg p-4 border border-rose-500/30">
-          <div className="flex items-center gap-1.5 mb-2">
-            <TrendingDown className="w-5 h-5 text-rose-400" />
-            <span className="text-sm font-medium text-slate-300">Total Borrowed</span>
+        <div className="bg-slate-700/50 rounded-lg p-3 border border-rose-500/30">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <TrendingDown className="w-4 h-4 text-rose-400" />
+            <span className="text-xs font-medium text-slate-300">Total Borrowed</span>
           </div>
-          <p className="text-2xl font-bold text-rose-400">
+          <p className="text-xl font-bold text-rose-400">
             ${totalDebt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
 
-        <div className="bg-slate-700/50 rounded-lg p-4 border border-amber-500/30">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Shield className="w-5 h-5 text-amber-400" />
-            <span className="text-sm font-medium text-slate-300">Health Factor</span>
+        <div className="bg-slate-700/50 rounded-lg p-3 border border-amber-500/30">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Shield className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-medium text-slate-300">Health Factor</span>
           </div>
-          <p className={`text-2xl font-bold ${getHealthFactorColor(healthFactor)}`}>
+          <p className={`text-xl font-bold ${getHealthFactorColor(healthFactor)}`}>
             {healthFactor}
           </p>
         </div>
       </div>
 
       {totalDebt > 0 && (
-        <div className="mt-4 bg-slate-700/50 rounded-lg p-4 border border-slate-600">
+        <div className="mt-3 bg-slate-700/50 rounded-lg p-3 border border-slate-600">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-slate-300">Available to Borrow</span>
-            <span className="text-base font-bold text-white">
+            <span className="text-xs font-medium text-slate-300">Available to Borrow</span>
+            <span className="text-sm font-bold text-white">
               ${availableBorrows.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
-          <div className="mt-2 text-sm text-slate-400">
+          <div className="mt-1.5 text-xs text-slate-400">
             Keep your health factor above 1.0 to avoid liquidation
           </div>
         </div>
