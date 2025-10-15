@@ -32,19 +32,19 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
-      <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <header className="bg-slate-800/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-white text-2xl font-black">M</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                   McLend
                 </h1>
-                <p className="text-xs text-gray-600">WBTC & USDT Markets</p>
+                <p className="text-xs text-slate-400">WBTC & USDT Markets</p>
               </div>
             </div>
             <WalletConnect />
@@ -55,52 +55,52 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {!isConnected ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
               <Coins className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-white mb-4">
               Welcome to McLend
             </h2>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
               Connect your wallet to supply and borrow WBTC and USDT using Aave's liquidity pools on Ethereum mainnet.
             </p>
-            <div className="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
+            <div className="bg-slate-800 rounded-2xl shadow-lg p-8 max-w-2xl mx-auto border border-slate-700">
+              <h3 className="text-xl font-bold text-white mb-4">Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-emerald-600 font-bold">✓</span>
+                  <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-emerald-400 font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Supply Assets</p>
-                    <p className="text-sm text-gray-600">Earn interest on WBTC & USDT</p>
+                    <p className="font-semibold text-white">Supply Assets</p>
+                    <p className="text-sm text-slate-400">Earn interest on WBTC & USDT</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-blue-600 font-bold">✓</span>
+                  <div className="w-8 h-8 bg-teal-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-teal-400 font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Borrow Assets</p>
-                    <p className="text-sm text-gray-600">Borrow against your collateral</p>
+                    <p className="font-semibold text-white">Borrow Assets</p>
+                    <p className="text-sm text-slate-400">Borrow against your collateral</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-violet-600 font-bold">✓</span>
+                  <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-cyan-400 font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Real-time APY</p>
-                    <p className="text-sm text-gray-600">Live rates from Aave protocol</p>
+                    <p className="font-semibold text-white">Real-time APY</p>
+                    <p className="text-sm text-slate-400">Live rates from Aave protocol</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-rose-600 font-bold">✓</span>
+                  <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-amber-400 font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Health Factor</p>
-                    <p className="text-sm text-gray-600">Monitor your position safety</p>
+                    <p className="font-semibold text-white">Health Factor</p>
+                    <p className="text-sm text-slate-400">Monitor your position safety</p>
                   </div>
                 </div>
               </div>
@@ -111,7 +111,7 @@ function App() {
             <UserDashboard />
 
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Markets</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">Markets</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {SUPPORTED_ASSETS.map((asset) => (
                   <AssetCard

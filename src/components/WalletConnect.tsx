@@ -11,7 +11,7 @@ export const WalletConnect = () => {
   return (
     <div className="flex items-center gap-3">
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-xs bg-red-50 px-3 py-2 rounded-lg max-w-xs">
+        <div className="flex items-center gap-2 text-red-400 text-xs bg-red-500/20 px-3 py-2 rounded-lg max-w-xs border border-red-500/30">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">{error}</span>
         </div>
@@ -19,12 +19,12 @@ export const WalletConnect = () => {
 
       {isConnected ? (
         <div className="flex items-center gap-2">
-          <div className="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-lg text-sm font-medium">
+          <div className="bg-emerald-500/20 text-emerald-400 px-3 py-2 rounded-lg text-sm font-medium border border-emerald-500/30">
             {formatAddress(account!)}
           </div>
           <button
             onClick={disconnect}
-            className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            className="px-3 py-2 text-sm text-slate-400 hover:text-white font-medium transition-colors"
           >
             Disconnect
           </button>
@@ -33,7 +33,7 @@ export const WalletConnect = () => {
         <button
           onClick={connect}
           disabled={isConnecting}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-md shadow-blue-500/20"
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-md shadow-emerald-500/20"
         >
           <Wallet className="w-4 h-4" />
           {isConnecting ? 'Connecting...' : 'Connect Wallet'}
