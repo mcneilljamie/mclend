@@ -23,8 +23,9 @@ export const UserDashboard = () => {
 
   if (!accountData) return null;
 
-  const totalCollateral = parseFloat(formatUSD(accountData.totalCollateralBase));
-  const totalDebt = parseFloat(formatUSD(accountData.totalDebtBase));
+  // Use portfolio summary for accurate position data
+  const totalCollateral = summary.totalDepositsUSD;
+  const totalDebt = summary.totalBorrowsUSD;
   const availableBorrows = parseFloat(formatUSD(accountData.availableBorrowsBase));
   const healthFactor = formatHealthFactor(accountData.healthFactor);
 
@@ -36,7 +37,7 @@ export const UserDashboard = () => {
     return 'text-rose-400';
   };
 
-  const netWorth = summary.totalDepositsUSD - summary.totalBorrowsUSD;
+  const netWorth = totalCollateral - totalDebt;
 
   const dailyInterest = interestData?.dailyInterest ?? 0;
   const isDailyInterestPositive = dailyInterest >= 0;
