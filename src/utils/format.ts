@@ -1,0 +1,59 @@
+import { formatUnits, parseUnits } from 'viem';
+import { TOKEN_DECIMALS } from '../config/contracts';
+
+export function formatWBTC(value: bigint): string {
+  return formatUnits(value, TOKEN_DECIMALS.WBTC);
+}
+
+export function formatUSDT(value: bigint): string {
+  return formatUnits(value, TOKEN_DECIMALS.USDT);
+}
+
+export function parseWBTC(value: string): bigint {
+  return parseUnits(value, TOKEN_DECIMALS.WBTC);
+}
+
+export function parseUSDT(value: string): bigint {
+  return parseUnits(value, TOKEN_DECIMALS.USDT);
+}
+
+export function formatHealthFactor(value: bigint): string {
+  if (value === 0n) return '0';
+  const formatted = formatUnits(value, 18);
+  return Number(formatted).toFixed(2);
+}
+
+export function formatLTV(value: bigint): string {
+  return (Number(value) / 100).toFixed(2);
+}
+
+export function formatAddress(address: string): string {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+export function formatUSD(value: bigint, decimals: number = 8): string {
+  const formatted = formatUnits(value, decimals);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(formatted));
+}
+
+export function calculateFee(netAmount: bigint, feeBps: number, bpsDenominator: number): bigint {
+  return (netAmount * BigInt(feeBps)) / BigInt(bpsDenominator);
+}
+
+export function calculateGrossAmount(netAmount: bigint, feeBps: number, bpsDenominator: number): bigint {
+  const fee = calculateFee(netAmount, feeBps, bpsDenominator);
+  return netAmount + fee;
+}
+
+export function calculateSafeMaxBorrow(
+  availableBorrowsBase: bigint,
+  targetHealthFactor: number = 1.5
+): bigint {
+  const safePercentage = BigInt(Math.floor((1 / targetHealthFactor) * 10000));
+  return (availableBorrowsBase * safePercentage) / 10000n;
+}
