@@ -3,7 +3,7 @@ import { WalletConnect } from './components/WalletConnect';
 import { LandingPage } from './components/LandingPage';
 import { AppPage } from './components/AppPage';
 import { ToastContainer } from './components/Toast';
-import { Bitcoin, ArrowLeft } from 'lucide-react';
+import { Bitcoin, ArrowLeft, ArrowRight } from 'lucide-react';
 
 function App() {
   const [showApp, setShowApp] = useState(false);
@@ -30,7 +30,17 @@ function App() {
               </div>
               <h1 className="text-2xl font-bold text-white tracking-tight">McLend</h1>
             </div>
-            {showApp && <WalletConnect />}
+            {showApp ? (
+              <WalletConnect />
+            ) : (
+              <button
+                onClick={() => setShowApp(true)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white rounded-lg transition-all font-semibold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40"
+              >
+                Launch App
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </header>
