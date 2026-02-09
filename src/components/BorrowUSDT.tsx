@@ -10,13 +10,11 @@ import { useAssetPrice } from '../hooks/useAssetPrice';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
 import { validateNumericInput, sanitizeNumericInput } from '../utils/validation';
 import { toastManager } from './Toast';
-import { Loader, AlertCircle, CheckCircle2, Circle, ChevronDown, ChevronUp, Info } from 'lucide-react';
-import { FeeExplainer } from './FeeExplainer';
+import { Loader, AlertCircle, CheckCircle2, Circle } from 'lucide-react';
 
 export function BorrowUSDT() {
   const { address } = useAccount();
   const [netAmount, setNetAmount] = useState('');
-  const [showFeeExplainer, setShowFeeExplainer] = useState(false);
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
@@ -149,22 +147,12 @@ export function BorrowUSDT() {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Borrow USDT</h2>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-sm text-gray-400">Variable APY:</span>
-            <span className="text-lg font-semibold text-orange-400">{formatAPY(variableBorrowRate)}%</span>
-          </div>
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-white">Borrow USDT</h2>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-sm text-gray-400">Variable APY:</span>
+          <span className="text-lg font-semibold text-orange-400">{formatAPY(variableBorrowRate)}%</span>
         </div>
-        <button
-          onClick={() => setShowFeeExplainer(!showFeeExplainer)}
-          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
-        >
-          <Info className="w-4 h-4" />
-          <span>How fees work</span>
-          {showFeeExplainer ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
       </div>
 
       {!isContractDeployed && (
@@ -176,17 +164,6 @@ export function BorrowUSDT() {
               The McLend Origination Gate contract has not been deployed to mainnet yet. All actions are disabled until deployment is complete.
             </p>
           </div>
-        </div>
-      )}
-
-      {showFeeExplainer && (
-        <div className="mb-4">
-          <FeeExplainer
-            netAmount={netAmount || undefined}
-            feeAmount={netAmount ? formatUSDT(feeAmount) : undefined}
-            grossAmount={netAmount ? formatUSDT(grossAmount) : undefined}
-            compact={true}
-          />
         </div>
       )}
 
