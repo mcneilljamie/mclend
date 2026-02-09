@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits } from 'viem';
-import { ADDRESSES, TOKEN_DECIMALS, MCLEND_FEE_BPS, BPS_DENOMINATOR } from '../config/contracts';
-import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_BORROW_GATE_ABI } from '../config/abis';
+import { ADDRESSES, TOKEN_DECIMALS, MCLEND_FEE_BPS, BPS_DENOMINATOR, SLIPPAGE } from '../config/contracts';
+import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
@@ -18,7 +18,7 @@ export function BorrowUSDT() {
   const { data: accountData } = useUserAccountData(address);
   const { data: creditDelegation, refetch: refetchDelegation } = useBorrowAllowance(
     address,
-    ADDRESSES.MCLEND_BORROW_GATE as `0x${string}`
+    ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`
   );
 
   const netAmountBigInt = useMemo(() => {
@@ -56,7 +56,7 @@ export function BorrowUSDT() {
         address: ADDRESSES.VARIABLE_DEBT_USDT as `0x${string}`,
         abi: VARIABLE_DEBT_TOKEN_ABI,
         functionName: 'approveDelegation',
-        args: [ADDRESSES.MCLEND_BORROW_GATE as `0x${string}`, grossAmount],
+        args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, grossAmount],
       });
       toastManager.update(toastId, 'success', 'Credit delegation approved!', hash);
       refetchDelegation();
@@ -67,15 +67,20 @@ export function BorrowUSDT() {
 
   const handleBorrow = async () => {
     if (!netAmount || !address) return;
-    const toastId = toastManager.show('loading', 'Borrowing USDT...');
+    const toastId = toastManager.show('loading', 'Borrowing USDT with atomic fee swap and burn...');
     try {
+      const minEthOut = (feeAmount * (BPS_DENOMINATOR - SLIPPAGE.USDT_TO_ETH_BPS)) / BPS_DENOMINATOR;
+      const ethEstimate = feeAmount * 3000n;
+      const minMclendOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.ETH_TO_MCLEND_BPS)) / BPS_DENOMINATOR / 1000000n;
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
+
       await writeContract({
-        address: ADDRESSES.MCLEND_BORROW_GATE as `0x${string}`,
-        abi: MCLEND_BORROW_GATE_ABI,
+        address: ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`,
+        abi: MCLEND_ORIGINATION_GATE_ABI,
         functionName: 'borrowWithFee',
-        args: [ADDRESSES.USDT as `0x${string}`, netAmountBigInt],
+        args: [netAmountBigInt, minEthOut, minMclendOut, deadline],
       });
-      toastManager.update(toastId, 'success', 'USDT borrowed successfully!', hash);
+      toastManager.update(toastId, 'success', 'USDT borrowed and MCLEND burned successfully!', hash);
       setNetAmount('');
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to borrow USDT');
