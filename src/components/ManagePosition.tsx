@@ -177,6 +177,37 @@ export function ManagePosition() {
     }
   };
 
+  const handleWithdrawMax = () => {
+    if (!wbtcPrice || totalCollateral === 0n || totalDebt === 0n || liquidationThreshold === 0n) {
+      if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint') {
+        setWithdrawAmount(formatWBTC(wbtcBalance));
+      }
+      return;
+    }
+
+    // Calculate max withdrawable amount while maintaining health factor of 1.5
+    // Health Factor = (Collateral * Liquidation Threshold) / Debt
+    // For HF = 1.5: maxWithdrawableCollateral = totalCollateral - (totalDebt * 1.5 / (liquidationThreshold / 10000))
+    const targetHealthFactor = 15000n; // 1.5 with 4 decimals
+    const minCollateralUSD = (totalDebt * targetHealthFactor) / liquidationThreshold;
+
+    if (minCollateralUSD >= totalCollateral) {
+      toastManager.show('error', 'Cannot withdraw. Position would become unsafe.');
+      return;
+    }
+
+    const maxWithdrawableUSD = totalCollateral - minCollateralUSD;
+
+    // Convert USD value to WBTC amount
+    const maxWithdrawableWBTC = (maxWithdrawableUSD * (10n ** 8n)) / wbtcPrice;
+
+    if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && maxWithdrawableWBTC > wbtcBalance) {
+      setWithdrawAmount(formatWBTC(wbtcBalance));
+    } else {
+      setWithdrawAmount(formatWBTC(maxWithdrawableWBTC));
+    }
+  };
+
   const getHealthFactorColor = (hf: bigint) => {
     const formatted = formatHealthFactor(hf);
     if (formatted === '∞') return 'text-green-400';
@@ -322,13 +353,21 @@ export function ManagePosition() {
             <label className="block text-sm font-medium text-purple-300 mb-2">
               Amount (WBTC)
             </label>
-            <input
-              type="text"
-              value={withdrawAmount}
-              onChange={(e) => setWithdrawAmount(sanitizeNumericInput(e.target.value))}
-              placeholder="0.0"
-              className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(sanitizeNumericInput(e.target.value))}
+                placeholder="0.0"
+                className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
+              />
+              <button
+                onClick={handleWithdrawMax}
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-purple-600/50 hover:bg-purple-600 rounded text-sm font-medium text-white transition-colors"
+              >
+                MAX
+              </button>
+            </div>
           </div>
 
           <button
