@@ -9,7 +9,8 @@ export function useTokenBalance(tokenAddress: `0x${string}`, userAddress?: `0x${
     args: userAddress ? [userAddress] : undefined,
     query: {
       enabled: !!userAddress,
-      refetchInterval: 10000,
+      refetchInterval: 15000,
+      staleTime: 10000,
     },
   });
 }
@@ -26,7 +27,8 @@ export function useTokenAllowance(
     args: owner && spender ? [owner, spender] : undefined,
     query: {
       enabled: !!owner && !!spender,
-      refetchInterval: 5000,
+      refetchInterval: 10000,
+      staleTime: 8000,
     },
   });
 }

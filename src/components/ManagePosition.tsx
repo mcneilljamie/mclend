@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseUnits, maxUint256 } from 'viem';
+import { parseUnits, maxUint256, formatUnits } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
 import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useDebtTokenBalance } from '../hooks/useDebtToken';
 import { useTokenAllowance, useTokenBalance } from '../hooks/useTokenBalance';
-import { formatHealthFactor, formatLTV, formatUSD, formatUSDT } from '../utils/format';
+import { formatHealthFactor, formatLTV, formatUSD, formatUSDT, formatWBTC } from '../utils/format';
+import { validateNumericInput, validateWithdrawalAmount, sanitizeNumericInput } from '../utils/validation';
 import { toastManager } from './Toast';
 import { Loader, TrendingUp, TrendingDown } from 'lucide-react';
 
@@ -17,9 +18,10 @@ export function ManagePosition() {
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
-  const { data: accountData } = useUserAccountData(address);
+  const { data: accountData, refetch: refetchAccountData } = useUserAccountData(address);
   const { data: debtBalance, refetch: refetchDebtBalance } = useDebtTokenBalance(address);
   const { data: usdtBalance } = useTokenBalance(ADDRESSES.USDT as `0x${string}`, address);
+  const { data: wbtcBalance } = useTokenBalance(ADDRESSES.WBTC as `0x${string}`, address);
   const { data: usdtAllowance, refetch: refetchAllowance } = useTokenAllowance(
     ADDRESSES.USDT as `0x${string}`,
     address,
@@ -69,6 +71,12 @@ export function ManagePosition() {
   const handleRepay = async () => {
     if (!repayAmount || !address) return;
 
+    const inputValidation = validateNumericInput(repayAmount);
+    if (!inputValidation.isValid) {
+      toastManager.show('error', inputValidation.error || 'Invalid input');
+      return;
+    }
+
     const parsedAmount = parseUnits(repayAmount, TOKEN_DECIMALS.USDT);
 
     if (usdtBalance !== undefined && parsedAmount > usdtBalance) {
@@ -95,7 +103,10 @@ export function ManagePosition() {
 
       toastManager.update(toastId, 'success', 'Debt repaid successfully!', txHash);
       setRepayAmount('');
-      await refetchDebtBalance();
+      setTimeout(() => {
+        refetchDebtBalance();
+        refetchAccountData();
+      }, 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to repay debt');
     }
@@ -103,17 +114,55 @@ export function ManagePosition() {
 
   const handleWithdraw = async () => {
     if (!withdrawAmount || !address) return;
-    const toastId = toastManager.show('loading', 'Withdrawing WBTC...');
+
+    const inputValidation = validateNumericInput(withdrawAmount);
+    if (!inputValidation.isValid) {
+      toastManager.show('error', inputValidation.error || 'Invalid input');
+      return;
+    }
+
+    const toastId = toastManager.show('loading', 'Validating withdrawal...');
     try {
       const parsedAmount = parseUnits(withdrawAmount, TOKEN_DECIMALS.WBTC);
-      await writeContract({
+
+      if (wbtcBalance !== undefined && parsedAmount > wbtcBalance) {
+        toastManager.update(toastId, 'error', 'Withdrawal amount exceeds WBTC balance');
+        return;
+      }
+
+      const wbtcPriceInUSD = totalCollateral > 0n && wbtcBalance !== undefined && wbtcBalance > 0n
+        ? totalCollateral / wbtcBalance
+        : 95000n * (10n ** 8n);
+
+      const withdrawalValueUSD = (parsedAmount * wbtcPriceInUSD) / (10n ** 8n);
+
+      const withdrawalValidation = validateWithdrawalAmount(
+        withdrawalValueUSD,
+        totalCollateral,
+        totalDebt,
+        healthFactor,
+        totalCollateral,
+        liquidationThreshold
+      );
+
+      if (!withdrawalValidation.isValid) {
+        toastManager.update(toastId, 'error', withdrawalValidation.error || 'Invalid withdrawal');
+        return;
+      }
+
+      toastManager.update(toastId, 'loading', 'Withdrawing WBTC...');
+      const txHash = await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'withdraw',
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address],
       });
-      toastManager.update(toastId, 'success', 'WBTC withdrawn successfully!', hash);
+
+      toastManager.update(toastId, 'success', 'WBTC withdrawn successfully!', txHash);
       setWithdrawAmount('');
+      setTimeout(() => {
+        refetchAccountData();
+      }, 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to withdraw WBTC');
     }
@@ -193,7 +242,7 @@ export function ManagePosition() {
               <input
                 type="text"
                 value={repayAmount}
-                onChange={(e) => setRepayAmount(e.target.value)}
+                onChange={(e) => setRepayAmount(sanitizeNumericInput(e.target.value))}
                 placeholder="0.0"
                 className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
               />
@@ -256,10 +305,15 @@ export function ManagePosition() {
             <input
               type="text"
               value={withdrawAmount}
-              onChange={(e) => setWithdrawAmount(e.target.value)}
+              onChange={(e) => setWithdrawAmount(sanitizeNumericInput(e.target.value))}
               placeholder="0.0"
               className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
             />
+            <div className="text-sm text-gray-400 mt-1">
+              {wbtcBalance !== undefined && (
+                <p>Available: {formatWBTC(wbtcBalance)} WBTC</p>
+              )}
+            </div>
           </div>
 
           <button

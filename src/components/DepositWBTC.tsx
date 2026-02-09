@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseUnits } from 'viem';
+import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
 import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useTokenBalance, useTokenAllowance } from '../hooks/useTokenBalance';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { formatWBTC } from '../utils/format';
+import { validateNumericInput, sanitizeNumericInput } from '../utils/validation';
 import { toastManager } from './Toast';
 import { Loader } from 'lucide-react';
 
@@ -33,17 +34,25 @@ export function DepositWBTC() {
 
   const handleApprove = async () => {
     if (!amount) return;
+
+    const inputValidation = validateNumericInput(amount);
+    if (!inputValidation.isValid) {
+      toastManager.show('error', inputValidation.error || 'Invalid input');
+      return;
+    }
+
     const toastId = toastManager.show('loading', 'Approving WBTC...');
     try {
-      const parsedAmount = parseUnits(amount, TOKEN_DECIMALS.WBTC);
-      await writeContract({
+      const txHash = await writeContract({
         address: ADDRESSES.WBTC as `0x${string}`,
         abi: IERC20_ABI,
         functionName: 'approve',
-        args: [ADDRESSES.AAVE_POOL as `0x${string}`, parsedAmount],
+        args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'WBTC approved successfully!', hash);
-      refetchAllowance();
+      toastManager.update(toastId, 'success', 'WBTC approved successfully!', txHash);
+      setTimeout(() => {
+        refetchAllowance();
+      }, 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve WBTC');
     }
@@ -51,16 +60,29 @@ export function DepositWBTC() {
 
   const handleDeposit = async () => {
     if (!amount || !address) return;
+
+    const inputValidation = validateNumericInput(amount);
+    if (!inputValidation.isValid) {
+      toastManager.show('error', inputValidation.error || 'Invalid input');
+      return;
+    }
+
+    const parsedAmount = parseUnits(amount, TOKEN_DECIMALS.WBTC);
+
+    if (wbtcBalance !== undefined && parsedAmount > wbtcBalance) {
+      toastManager.show('error', 'Insufficient WBTC balance');
+      return;
+    }
+
     const toastId = toastManager.show('loading', 'Depositing WBTC...');
     try {
-      const parsedAmount = parseUnits(amount, TOKEN_DECIMALS.WBTC);
-      await writeContract({
+      const txHash = await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'supply',
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address, 0],
       });
-      toastManager.update(toastId, 'success', 'WBTC deposited successfully!', hash);
+      toastManager.update(toastId, 'success', 'WBTC deposited successfully!', txHash);
       setAmount('');
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to deposit WBTC');
@@ -92,7 +114,7 @@ export function DepositWBTC() {
             <input
               type="text"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => setAmount(sanitizeNumericInput(e.target.value))}
               placeholder="0.0"
               className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
             />

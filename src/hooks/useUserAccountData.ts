@@ -10,7 +10,8 @@ export function useUserAccountData(address?: `0x${string}`) {
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
-      refetchInterval: 10000,
+      refetchInterval: 15000,
+      staleTime: 10000,
     },
   });
 }

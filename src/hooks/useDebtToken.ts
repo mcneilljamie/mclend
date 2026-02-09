@@ -10,7 +10,8 @@ export function useDebtTokenBalance(userAddress?: `0x${string}`) {
     args: userAddress ? [userAddress] : undefined,
     query: {
       enabled: !!userAddress,
-      refetchInterval: 10000,
+      refetchInterval: 15000,
+      staleTime: 10000,
     },
   });
 }
@@ -23,7 +24,8 @@ export function useBorrowAllowance(fromUser?: `0x${string}`, toUser?: `0x${strin
     args: fromUser && toUser ? [fromUser, toUser] : undefined,
     query: {
       enabled: !!fromUser && !!toUser,
-      refetchInterval: 5000,
+      refetchInterval: 10000,
+      staleTime: 8000,
     },
   });
 }

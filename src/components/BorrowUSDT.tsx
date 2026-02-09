@@ -7,6 +7,7 @@ import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
+import { validateNumericInput, sanitizeNumericInput } from '../utils/validation';
 import { toastManager } from './Toast';
 import { Loader, AlertCircle, CheckCircle2, Circle, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { FeeExplainer } from './FeeExplainer';
@@ -67,13 +68,13 @@ export function BorrowUSDT() {
   const handleApproveDelegation = async () => {
     const toastId = toastManager.show('loading', 'Approving credit delegation (one-time setup)...');
     try {
-      await writeContract({
+      const txHash = await writeContract({
         address: ADDRESSES.VARIABLE_DEBT_USDT as `0x${string}`,
         abi: VARIABLE_DEBT_TOKEN_ABI,
         functionName: 'approveDelegation',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'Credit delegation approved for unlimited borrows!', hash);
+      toastManager.update(toastId, 'success', 'Credit delegation approved for unlimited borrows!', txHash);
       setTimeout(() => refetchDelegation(), 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve delegation');
@@ -83,13 +84,13 @@ export function BorrowUSDT() {
   const handleApproveUSDT = async () => {
     const toastId = toastManager.show('loading', 'Approving USDT for fee collection (one-time setup)...');
     try {
-      await writeContract({
+      const txHash = await writeContract({
         address: ADDRESSES.USDT as `0x${string}`,
         abi: IERC20_ABI,
         functionName: 'approve',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'USDT approved for unlimited fee collection!', hash);
+      toastManager.update(toastId, 'success', 'USDT approved for unlimited fee collection!', txHash);
       setTimeout(() => refetchUsdtAllowance(), 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
@@ -98,6 +99,18 @@ export function BorrowUSDT() {
 
   const handleBorrow = async () => {
     if (!netAmount || !address) return;
+
+    const inputValidation = validateNumericInput(netAmount);
+    if (!inputValidation.isValid) {
+      toastManager.show('error', inputValidation.error || 'Invalid input');
+      return;
+    }
+
+    if (grossAmount > availableBorrow) {
+      toastManager.show('error', 'Borrow amount exceeds available capacity');
+      return;
+    }
+
     const toastId = toastManager.show('loading', 'Borrowing USDT with atomic fee swap and burn...');
     try {
       const ETH_USD_PRICE = 3000n;
@@ -110,13 +123,13 @@ export function BorrowUSDT() {
 
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
 
-      await writeContract({
+      const txHash = await writeContract({
         address: ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`,
         abi: MCLEND_ORIGINATION_GATE_ABI,
         functionName: 'borrowWithFee',
         args: [netAmountBigInt, minEthOut, minMclendOut, deadline],
       });
-      toastManager.update(toastId, 'success', 'USDT borrowed and MCLEND burned successfully!', hash);
+      toastManager.update(toastId, 'success', 'USDT borrowed and MCLEND burned successfully!', txHash);
       setNetAmount('');
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to borrow USDT');
@@ -181,7 +194,7 @@ export function BorrowUSDT() {
             <input
               type="text"
               value={netAmount}
-              onChange={(e) => setNetAmount(e.target.value)}
+              onChange={(e) => setNetAmount(sanitizeNumericInput(e.target.value))}
               placeholder="0.0"
               disabled={!isContractDeployed}
               className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
