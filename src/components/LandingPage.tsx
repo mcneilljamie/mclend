@@ -108,9 +108,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </div>
         </div>
 
-        <FeeExplainer />
-
-        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-xl mb-10 mt-10">
+        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-xl mb-10">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">Why Choose DeFi Over TradFi?</h2>
             <p className="text-gray-400">
@@ -230,6 +228,8 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
             </div>
           </div>
         </div>
+
+        <FeeExplainer />
 
         <div className="bg-purple-950/30 border border-purple-500/20 rounded-xl p-6 backdrop-blur-sm">
           <p className="text-sm text-gray-400 text-center">
