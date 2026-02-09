@@ -13,16 +13,12 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
+      type: "edr-simulated" as const,
+      chainId: 1,
       forking: {
         url: process.env.VITE_ETHEREUM_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/demo",
         blockNumber: 18500000,
       },
-      chainId: 1,
-    },
-    mainnet: {
-      type: "http",
-      url: process.env.VITE_ETHEREUM_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/demo",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
   },
 };

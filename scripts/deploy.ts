@@ -24,16 +24,16 @@ async function main() {
 
   console.log("Pre-deployment verification...");
   const mcFunFactory = await ethers.getContractAt(
-    ["function getPool(address token) external view returns (address)"],
+    ["function tokenToAMM(address token) external view returns (address)"],
     MCFUN_FACTORY
   );
-  const mcFunPool = await mcFunFactory.getPool(MCLEND);
+  const mcFunAMM = await mcFunFactory.tokenToAMM(MCLEND);
 
-  if (mcFunPool === ethers.ZeroAddress) {
-    throw new Error(`CRITICAL: MCLEND token ${MCLEND} does not have a McFun pool. Deployment aborted.`);
+  if (mcFunAMM === ethers.ZeroAddress) {
+    throw new Error(`CRITICAL: MCLEND token ${MCLEND} does not have a McFun AMM. Deployment aborted.`);
   }
 
-  console.log("✅ McFun pool verified for MCLEND:", mcFunPool);
+  console.log("✅ McFun AMM verified for MCLEND:", mcFunAMM);
   console.log();
 
   const McLendOriginationGate = await ethers.getContractFactory("McLendOriginationGate");

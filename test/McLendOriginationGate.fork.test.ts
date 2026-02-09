@@ -75,12 +75,12 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
       const grossAmount = netAmount + feeAmount;
 
       const mcFunFactory = await ethers.getContractAt(
-        ["function getPool(address token) external view returns (address)"],
+        ["function tokenToAMM(address token) external view returns (address)"],
         MCFUN_FACTORY
       );
-      const mcFunPool = await mcFunFactory.getPool(MCLEND);
-      console.log("McFun pool for MCLEND:", mcFunPool);
-      expect(mcFunPool).to.not.equal(ethers.ZeroAddress, "MCLEND must have a McFun pool");
+      const mcFunAMM = await mcFunFactory.tokenToAMM(MCLEND);
+      console.log("McFun AMM for MCLEND:", mcFunAMM);
+      expect(mcFunAMM).to.not.equal(ethers.ZeroAddress, "MCLEND must have a McFun AMM");
 
       const wbtcAmount = ethers.parseUnits("1", 8);
       await setupCollateral(user.address, wbtcAmount);

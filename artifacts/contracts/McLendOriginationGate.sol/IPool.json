@@ -1,7 +1,7 @@
 {
   "_format": "hh3-artifact-1",
   "contractName": "IPool",
-  "sourceName": "contracts/McLendBorrowGate.sol",
+  "sourceName": "contracts/McLendOriginationGate.sol",
   "abi": [
     {
       "inputs": [
@@ -42,6 +42,6 @@
   "linkReferences": {},
   "deployedLinkReferences": {},
   "immutableReferences": {},
-  "inputSourceName": "project/contracts/McLendBorrowGate.sol",
-  "buildInfoId": "solc-0_8_20-f9aecac63b0f6649de5c3ce0fb8569061aac1249"
+  "inputSourceName": "project/contracts/McLendOriginationGate.sol",
+  "buildInfoId": "solc-0_8_20-a0dd316b1c3ef9a5513f821f218ab38c19f09b1f"
 }

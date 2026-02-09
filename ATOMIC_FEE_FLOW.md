@@ -172,9 +172,11 @@ interface ISwapRouter {
 **IMcFunFactory:**
 ```solidity
 interface IMcFunFactory {
-    function getPool(address token) external view returns (address);
+    function tokenToAMM(address token) external view returns (address);
 }
 ```
+
+**Note**: The McFun factory exposes a public mapping `mapping(address => address) public tokenToAMM` which provides an auto-generated getter function. This returns the AMM contract address for a given token.
 
 **IMcFunPool:**
 ```solidity

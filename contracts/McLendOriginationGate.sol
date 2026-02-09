@@ -36,7 +36,7 @@ interface ISwapRouter {
 }
 
 interface IMcFunFactory {
-    function getPool(address token) external view returns (address);
+    function tokenToAMM(address token) external view returns (address);
 }
 
 interface IMcFunPool {
@@ -119,6 +119,7 @@ contract McLendOriginationGate is ReentrancyGuard {
     error InsufficientCreditDelegation(address user, uint256 required, uint256 current);
     error SwapInsufficientOutput(string swapType, uint256 expected, uint256 actual);
     error ResidualBalance(string token, uint256 amount);
+    error McFunPoolNotFound(address token);
 
     constructor(
         address _aavePool,
@@ -240,9 +241,9 @@ contract McLendOriginationGate is ReentrancyGuard {
 
         weth.withdraw(ethReceived);
 
-        address mcFunPool = mcFunFactory.getPool(address(mclend));
+        address mcFunPool = mcFunFactory.tokenToAMM(address(mclend));
         if (mcFunPool == address(0)) {
-            revert InvalidAddress();
+            revert McFunPoolNotFound(address(mclend));
         }
 
         uint256 mclendBalanceBefore = mclend.balanceOf(address(this));
