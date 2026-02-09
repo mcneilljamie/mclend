@@ -5,7 +5,7 @@ import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
 import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useDebtTokenBalance } from '../hooks/useDebtToken';
-import { useTokenAllowance } from '../hooks/useTokenBalance';
+import { useTokenAllowance, useTokenBalance } from '../hooks/useTokenBalance';
 import { formatHealthFactor, formatLTV, formatUSD, formatUSDT } from '../utils/format';
 import { toastManager } from './Toast';
 import { Loader, TrendingUp, TrendingDown } from 'lucide-react';
@@ -18,7 +18,8 @@ export function ManagePosition() {
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
   const { data: accountData } = useUserAccountData(address);
-  const { data: debtBalance } = useDebtTokenBalance(address);
+  const { data: debtBalance, refetch: refetchDebtBalance } = useDebtTokenBalance(address);
+  const { data: usdtBalance } = useTokenBalance(ADDRESSES.USDT as `0x${string}`, address);
   const { data: usdtAllowance, refetch: refetchAllowance } = useTokenAllowance(
     ADDRESSES.USDT as `0x${string}`,
     address,
@@ -36,24 +37,30 @@ export function ManagePosition() {
     parseUnits(repayAmount || '0', TOKEN_DECIMALS.USDT) > usdtAllowance;
 
   const handleApproveUSDT = async () => {
-    const toastId = toastManager.show('loading', 'Approving USDT...');
+    if (!address) return;
+    const toastId = toastManager.show('loading', 'Approving USDT (Step 1/2)...');
     try {
-      await writeContract({
+      const resetHash = await writeContract({
         address: ADDRESSES.USDT as `0x${string}`,
         abi: IERC20_ABI,
         functionName: 'approve',
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, 0n],
       });
-      setTimeout(async () => {
-        await writeContract({
-          address: ADDRESSES.USDT as `0x${string}`,
-          abi: IERC20_ABI,
-          functionName: 'approve',
-          args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
-        });
-        toastManager.update(toastId, 'success', 'USDT approved successfully!', hash);
-        refetchAllowance();
-      }, 1000);
+
+      toastManager.update(toastId, 'loading', 'Waiting for first approval...');
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      toastManager.update(toastId, 'loading', 'Approving USDT (Step 2/2)...');
+      const approveHash = await writeContract({
+        address: ADDRESSES.USDT as `0x${string}`,
+        abi: IERC20_ABI,
+        functionName: 'approve',
+        args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
+      });
+
+      toastManager.update(toastId, 'success', 'USDT approved successfully!', approveHash);
+      await refetchAllowance();
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
     }
@@ -61,17 +68,34 @@ export function ManagePosition() {
 
   const handleRepay = async () => {
     if (!repayAmount || !address) return;
+
+    const parsedAmount = parseUnits(repayAmount, TOKEN_DECIMALS.USDT);
+
+    if (usdtBalance !== undefined && parsedAmount > usdtBalance) {
+      toastManager.show('error', 'Insufficient USDT balance');
+      return;
+    }
+
+    if (debtBalance !== undefined && parsedAmount > debtBalance) {
+      toastManager.show('error', 'Repay amount exceeds current debt');
+      return;
+    }
+
     const toastId = toastManager.show('loading', 'Repaying debt...');
     try {
-      const parsedAmount = parseUnits(repayAmount, TOKEN_DECIMALS.USDT);
-      await writeContract({
+      const isRepayingFull = debtBalance !== undefined && parsedAmount >= debtBalance;
+      const amountToRepay = isRepayingFull ? maxUint256 : parsedAmount;
+
+      const txHash = await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'repay',
-        args: [ADDRESSES.USDT as `0x${string}`, parsedAmount, 2, address],
+        args: [ADDRESSES.USDT as `0x${string}`, amountToRepay, 2, address],
       });
-      toastManager.update(toastId, 'success', 'Debt repaid successfully!', hash);
+
+      toastManager.update(toastId, 'success', 'Debt repaid successfully!', txHash);
       setRepayAmount('');
+      await refetchDebtBalance();
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to repay debt');
     }
@@ -180,11 +204,14 @@ export function ManagePosition() {
                 MAX
               </button>
             </div>
-            {debtBalance !== undefined && (
-              <p className="text-sm text-gray-400 mt-1">
-                Current Debt: {formatUSDT(debtBalance)} USDT
-              </p>
-            )}
+            <div className="text-sm text-gray-400 mt-1 space-y-0.5">
+              {debtBalance !== undefined && (
+                <p>Current Debt: {formatUSDT(debtBalance)} USDT</p>
+              )}
+              {usdtBalance !== undefined && (
+                <p>USDT Balance: {formatUSDT(usdtBalance)} USDT</p>
+              )}
+            </div>
           </div>
 
           {needsUSDTApproval ? (
