@@ -1,21 +1,21 @@
 {
   "_format": "hh3-artifact-1",
-  "contractName": "IMcFunPool",
+  "contractName": "IMcFunAMM",
   "sourceName": "contracts/McLendOriginationGate.sol",
   "abi": [
     {
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "minTokensOut",
+          "name": "minTokenOut",
           "type": "uint256"
         }
       ],
-      "name": "buy",
+      "name": "swapETHForToken",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "tokensOut",
+          "name": "tokenOut",
           "type": "uint256"
         }
       ],
@@ -29,5 +29,5 @@
   "deployedLinkReferences": {},
   "immutableReferences": {},
   "inputSourceName": "project/contracts/McLendOriginationGate.sol",
-  "buildInfoId": "solc-0_8_20-a0dd316b1c3ef9a5513f821f218ab38c19f09b1f"
+  "buildInfoId": "solc-0_8_20-a60442d71078952729a5ac8a8c5edadaf4f158a6"
 }

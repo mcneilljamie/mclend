@@ -39,8 +39,8 @@ interface IMcFunFactory {
     function tokenToAMM(address token) external view returns (address);
 }
 
-interface IMcFunPool {
-    function buy(uint256 minTokensOut) external payable returns (uint256 tokensOut);
+interface IMcFunAMM {
+    function swapETHForToken(uint256 minTokenOut) external payable returns (uint256 tokenOut);
 }
 
 interface IWETH {
@@ -241,14 +241,14 @@ contract McLendOriginationGate is ReentrancyGuard {
 
         weth.withdraw(ethReceived);
 
-        address mcFunPool = mcFunFactory.tokenToAMM(address(mclend));
-        if (mcFunPool == address(0)) {
+        address mcFunAMM = mcFunFactory.tokenToAMM(address(mclend));
+        if (mcFunAMM == address(0)) {
             revert McFunPoolNotFound(address(mclend));
         }
 
         uint256 mclendBalanceBefore = mclend.balanceOf(address(this));
 
-        uint256 mclendReceived = IMcFunPool(mcFunPool).buy{value: ethReceived}(minMclendOut);
+        uint256 mclendReceived = IMcFunAMM(mcFunAMM).swapETHForToken{value: ethReceived}(minMclendOut);
 
         if (mclendReceived < minMclendOut) {
             revert SwapInsufficientOutput("ETH->MCLEND", minMclendOut, mclendReceived);

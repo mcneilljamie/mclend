@@ -77,8 +77,8 @@ If ANY step fails, the ENTIRE transaction reverts. No partial execution is possi
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │              Step 6: Swap ETH → MCLEND (McFun)                      │
-│  • Get McFun pool address for MCLEND                               │
-│  • mcFunPool.buy{value: ethReceived}(minMclendOut)                │
+│  • Get McFun AMM address for MCLEND                                │
+│  • mcFunAMM.swapETHForToken{value: ethReceived}(minMclendOut)     │
 │  • Contract receives MCLEND tokens                                 │
 │  • 50% slippage protection for volatile McFun markets              │
 └────────────────────────────────┬────────────────────────────────────┘
@@ -178,12 +178,14 @@ interface IMcFunFactory {
 
 **Note**: The McFun factory exposes a public mapping `mapping(address => address) public tokenToAMM` which provides an auto-generated getter function. This returns the AMM contract address for a given token.
 
-**IMcFunPool:**
+**IMcFunAMM:**
 ```solidity
-interface IMcFunPool {
-    function buy(uint256 minTokensOut) external payable returns (uint256 tokensOut);
+interface IMcFunAMM {
+    function swapETHForToken(uint256 minTokenOut) external payable returns (uint256 tokenOut);
 }
 ```
+
+**Note**: The McFun AMM uses `swapETHForToken` as its swap function, which accepts ETH (msg.value) and a minimum token output for slippage protection.
 
 ## Slippage Protection
 

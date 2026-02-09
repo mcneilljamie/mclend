@@ -2,11 +2,15 @@
 
 ## Summary
 
-Fixed McLend's McFun integration to match the actual production McFun contract deployed on mainnet.
+Fixed McLend's McFun integration to match the actual production McFun contract deployed on mainnet, including both the factory interface and AMM swap function.
 
-## Problem
+## Problems Fixed
 
+### 1. Incorrect Factory Interface
 The McLend contract was calling `mcFunFactory.getPool(token)` which does not exist on the deployed McFun factory contract at `0x6E8717dd111Bea3f5B12785798F3d1380c01D72B`. This would cause all transactions to revert.
+
+### 2. Incorrect AMM Swap Function
+The McLend contract was calling `IMcFunPool.buy(minTokensOut)` which does not exist on the deployed McFun AMM contracts. The actual function is `swapETHForToken(minTokenOut)`.
 
 ## Solution
 
@@ -26,7 +30,7 @@ function tokenToAMM(address token) external view returns (address);
 
 ## Changes Made
 
-### 1. Contract Interface (`contracts/McLendOriginationGate.sol`)
+### 1. McFun Factory Interface (`contracts/McLendOriginationGate.sol`)
 
 **Before:**
 ```solidity
@@ -42,14 +46,30 @@ interface IMcFunFactory {
 }
 ```
 
-### 2. Custom Error
+### 2. McFun AMM Interface (`contracts/McLendOriginationGate.sol`)
+
+**Before:**
+```solidity
+interface IMcFunPool {
+    function buy(uint256 minTokensOut) external payable returns (uint256 tokensOut);
+}
+```
+
+**After:**
+```solidity
+interface IMcFunAMM {
+    function swapETHForToken(uint256 minTokenOut) external payable returns (uint256 tokenOut);
+}
+```
+
+### 3. Custom Error
 
 Added a new custom error for better error handling:
 ```solidity
 error McFunPoolNotFound(address token);
 ```
 
-### 3. Contract Logic
+### 4. Contract Logic - Factory Call
 
 **Before:**
 ```solidity
@@ -61,13 +81,31 @@ if (mcFunPool == address(0)) {
 
 **After:**
 ```solidity
-address mcFunPool = mcFunFactory.tokenToAMM(address(mclend));
-if (mcFunPool == address(0)) {
+address mcFunAMM = mcFunFactory.tokenToAMM(address(mclend));
+if (mcFunAMM == address(0)) {
     revert McFunPoolNotFound(address(mclend));
 }
 ```
 
-### 4. Test Files (`test/McLendOriginationGate.fork.test.ts`)
+### 5. Contract Logic - AMM Swap Call
+
+**Before:**
+```solidity
+uint256 mclendReceived = IMcFunPool(mcFunPool).buy{value: ethReceived}(minMclendOut);
+```
+
+**After:**
+```solidity
+uint256 mclendReceived = IMcFunAMM(mcFunAMM).swapETHForToken{value: ethReceived}(minMclendOut);
+```
+
+This change ensures McLend calls the correct function on the deployed McFun AMM contract. The function signature matches exactly:
+- Accepts ETH via `msg.value`
+- Takes `minTokenOut` for slippage protection
+- Returns the amount of tokens received
+- Atomically reverts if slippage protection fails
+
+### 6. Test Files (`test/McLendOriginationGate.fork.test.ts`)
 
 Updated the factory interface call in tests:
 
@@ -89,7 +127,7 @@ const mcFunFactory = await ethers.getContractAt(
 const mcFunAMM = await mcFunFactory.tokenToAMM(MCLEND);
 ```
 
-### 5. Deployment Script (`scripts/deploy.ts`)
+### 7. Deployment Script (`scripts/deploy.ts`)
 
 Updated pre-deployment verification:
 
@@ -109,9 +147,9 @@ if (mcFunAMM === ethers.ZeroAddress) {
 }
 ```
 
-### 6. Documentation (`ATOMIC_FEE_FLOW.md`)
+### 8. Documentation (`ATOMIC_FEE_FLOW.md`)
 
-Updated interface documentation to reflect the correct McFun factory interface and added a note explaining the mapping structure.
+Updated interface documentation to reflect both the correct McFun factory interface and the correct AMM swap function. Added notes explaining the mapping structure and function signature.
 
 ## Verification
 
