@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseUnits, maxUint256, formatUnits } from 'viem';
+import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
 import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
@@ -37,14 +37,14 @@ export function ManagePosition() {
   const ltv = accountData?.[4] || 0n;
   const healthFactor = accountData?.[5] || 0n;
 
-  const needsUSDTApproval = usdtAllowance !== undefined && repayAmount !== '' &&
+  const needsUSDTApproval = usdtAllowance !== undefined && usdtAllowance !== null && typeof usdtAllowance === 'bigint' && repayAmount !== '' &&
     parseUnits(repayAmount || '0', TOKEN_DECIMALS.USDT) > usdtAllowance;
 
   const handleApproveUSDT = async () => {
     if (!address) return;
     const toastId = toastManager.show('loading', 'Approving USDT (Step 1/2)...');
     try {
-      const resetHash = await writeContract({
+      await writeContract({
         address: ADDRESSES.USDT as `0x${string}`,
         abi: IERC20_ABI,
         functionName: 'approve',
@@ -63,7 +63,7 @@ export function ManagePosition() {
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
 
-      toastManager.update(toastId, 'success', 'USDT approved successfully!', approveHash);
+      toastManager.update(toastId, 'success', 'USDT approved successfully!', approveHash as unknown as string);
       await refetchAllowance();
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
@@ -81,29 +81,29 @@ export function ManagePosition() {
 
     const parsedAmount = parseUnits(repayAmount, TOKEN_DECIMALS.USDT);
 
-    if (usdtBalance !== undefined && parsedAmount > usdtBalance) {
+    if (usdtBalance !== undefined && usdtBalance !== null && typeof usdtBalance === 'bigint' && parsedAmount > usdtBalance) {
       toastManager.show('error', 'Insufficient USDT balance');
       return;
     }
 
-    if (debtBalance !== undefined && parsedAmount > debtBalance) {
+    if (debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint' && parsedAmount > debtBalance) {
       toastManager.show('error', 'Repay amount exceeds current debt');
       return;
     }
 
     const toastId = toastManager.show('loading', 'Repaying debt...');
     try {
-      const isRepayingFull = debtBalance !== undefined && parsedAmount >= debtBalance;
+      const isRepayingFull = debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint' && parsedAmount >= debtBalance;
       const amountToRepay = isRepayingFull ? maxUint256 : parsedAmount;
 
       const txHash = await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'repay',
-        args: [ADDRESSES.USDT as `0x${string}`, amountToRepay, 2, address],
+        args: [ADDRESSES.USDT as `0x${string}`, amountToRepay, BigInt(2), address],
       });
 
-      toastManager.update(toastId, 'success', 'Debt repaid successfully!', txHash);
+      toastManager.update(toastId, 'success', 'Debt repaid successfully!', txHash as unknown as string);
       setRepayAmount('');
       setTimeout(() => {
         refetchDebtBalance();
@@ -132,7 +132,7 @@ export function ManagePosition() {
     try {
       const parsedAmount = parseUnits(withdrawAmount, TOKEN_DECIMALS.WBTC);
 
-      if (wbtcBalance !== undefined && parsedAmount > wbtcBalance) {
+      if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && parsedAmount > wbtcBalance) {
         toastManager.update(toastId, 'error', 'Withdrawal amount exceeds WBTC balance');
         return;
       }
@@ -161,7 +161,7 @@ export function ManagePosition() {
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address],
       });
 
-      toastManager.update(toastId, 'success', 'WBTC withdrawn successfully!', txHash);
+      toastManager.update(toastId, 'success', 'WBTC withdrawn successfully!', txHash as unknown as string);
       setWithdrawAmount('');
       setTimeout(() => {
         refetchAccountData();
@@ -172,7 +172,7 @@ export function ManagePosition() {
   };
 
   const handleRepayMax = () => {
-    if (debtBalance) {
+    if (debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint') {
       setRepayAmount(formatUSDT(debtBalance));
     }
   };
@@ -257,10 +257,10 @@ export function ManagePosition() {
               </button>
             </div>
             <div className="text-sm text-gray-400 mt-1 space-y-0.5">
-              {debtBalance !== undefined && (
+              {debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint' && (
                 <p>Current Debt: {formatUSDT(debtBalance)} USDT</p>
               )}
-              {usdtBalance !== undefined && (
+              {usdtBalance !== undefined && usdtBalance !== null && typeof usdtBalance === 'bigint' && (
                 <p>USDT Balance: {formatUSDT(usdtBalance)} USDT</p>
               )}
             </div>
@@ -313,7 +313,7 @@ export function ManagePosition() {
               className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
             />
             <div className="text-sm text-gray-400 mt-1">
-              {wbtcBalance !== undefined && (
+              {wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && (
                 <p>Available: {formatWBTC(wbtcBalance)} WBTC</p>
               )}
             </div>

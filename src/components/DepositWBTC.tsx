@@ -29,7 +29,7 @@ export function DepositWBTC() {
 
   const { liquidityRate } = useReserveData(ADDRESSES.WBTC as `0x${string}`);
 
-  const needsApproval = allowance !== undefined && amount !== '' &&
+  const needsApproval = allowance !== undefined && allowance !== null && typeof allowance === 'bigint' && amount !== '' &&
     parseUnits(amount || '0', TOKEN_DECIMALS.WBTC) > allowance;
 
   const handleApprove = async () => {
@@ -49,7 +49,7 @@ export function DepositWBTC() {
         functionName: 'approve',
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'WBTC approved successfully!', txHash);
+      toastManager.update(toastId, 'success', 'WBTC approved successfully!', txHash as unknown as string);
       setTimeout(() => {
         refetchAllowance();
       }, 2000);
@@ -69,7 +69,7 @@ export function DepositWBTC() {
 
     const parsedAmount = parseUnits(amount, TOKEN_DECIMALS.WBTC);
 
-    if (wbtcBalance !== undefined && parsedAmount > wbtcBalance) {
+    if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && parsedAmount > wbtcBalance) {
       toastManager.show('error', 'Insufficient WBTC balance');
       return;
     }
@@ -82,7 +82,7 @@ export function DepositWBTC() {
         functionName: 'supply',
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address, 0],
       });
-      toastManager.update(toastId, 'success', 'WBTC deposited successfully!', txHash);
+      toastManager.update(toastId, 'success', 'WBTC deposited successfully!', txHash as unknown as string);
       setAmount('');
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to deposit WBTC');
@@ -90,7 +90,7 @@ export function DepositWBTC() {
   };
 
   const handleMax = () => {
-    if (wbtcBalance) {
+    if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint') {
       setAmount(formatWBTC(wbtcBalance));
     }
   };
@@ -125,7 +125,7 @@ export function DepositWBTC() {
               MAX
             </button>
           </div>
-          {wbtcBalance !== undefined && (
+          {wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && (
             <p className="text-sm text-gray-400 mt-1">
               Wallet Balance: {formatWBTC(wbtcBalance)} WBTC
             </p>

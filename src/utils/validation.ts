@@ -40,7 +40,7 @@ export function validateWithdrawalAmount(
   withdrawAmount: bigint,
   totalCollateral: bigint,
   totalDebt: bigint,
-  healthFactor: bigint,
+  _healthFactor: bigint,
   collateralValue: bigint,
   liquidationThreshold: bigint
 ): ValidationResult {

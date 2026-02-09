@@ -57,9 +57,8 @@ export function BorrowUSDT() {
     [netAmountBigInt]
   );
 
-  const hasCreditDelegation = creditDelegation !== undefined && creditDelegation >= grossAmount;
-  const hasUsdtAllowance = usdtAllowance !== undefined && usdtAllowance >= feeAmount;
-  const needsSetup = !hasCreditDelegation || !hasUsdtAllowance;
+  const hasCreditDelegation = creditDelegation !== undefined && creditDelegation !== null && typeof creditDelegation === 'bigint' && creditDelegation >= grossAmount;
+  const hasUsdtAllowance = usdtAllowance !== undefined && usdtAllowance !== null && typeof usdtAllowance === 'bigint' && usdtAllowance >= feeAmount;
 
   const availableBorrow = accountData?.[2] || 0n;
   const safeMaxBorrow = useMemo(
@@ -76,7 +75,7 @@ export function BorrowUSDT() {
         functionName: 'approveDelegation',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'Credit delegation approved for unlimited borrows!', txHash);
+      toastManager.update(toastId, 'success', 'Credit delegation approved for unlimited borrows!', txHash as unknown as string);
       setTimeout(() => refetchDelegation(), 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve delegation');
@@ -92,7 +91,7 @@ export function BorrowUSDT() {
         functionName: 'approve',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'USDT approved for unlimited fee collection!', txHash);
+      toastManager.update(toastId, 'success', 'USDT approved for unlimited fee collection!', txHash as unknown as string);
       setTimeout(() => refetchUsdtAllowance(), 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
@@ -123,9 +122,9 @@ export function BorrowUSDT() {
       const USDT_TO_ETH_DECIMALS_ADJUSTMENT = 10n ** 12n;
 
       const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / wethPrice;
-      const minEthOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.USDT_TO_ETH_BPS)) / BPS_DENOMINATOR;
+      const minEthOut = (ethEstimate * (BigInt(BPS_DENOMINATOR) - BigInt(SLIPPAGE.USDT_TO_ETH_BPS))) / BigInt(BPS_DENOMINATOR);
 
-      const minMclendOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.ETH_TO_MCLEND_BPS)) / BPS_DENOMINATOR;
+      const minMclendOut = (ethEstimate * (BigInt(BPS_DENOMINATOR) - BigInt(SLIPPAGE.ETH_TO_MCLEND_BPS))) / BigInt(BPS_DENOMINATOR);
 
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
 
@@ -135,7 +134,7 @@ export function BorrowUSDT() {
         functionName: 'borrowWithFee',
         args: [netAmountBigInt, minEthOut, minMclendOut, deadline],
       });
-      toastManager.update(toastId, 'success', 'USDT borrowed and MCLEND burned successfully!', txHash);
+      toastManager.update(toastId, 'success', 'USDT borrowed and MCLEND burned successfully!', txHash as unknown as string);
       setNetAmount('');
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to borrow USDT');
