@@ -256,14 +256,6 @@ export function ManagePosition() {
                 MAX
               </button>
             </div>
-            <div className="text-sm text-gray-400 mt-1 space-y-0.5">
-              {debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint' && (
-                <p>Current Debt: {formatUSDT(debtBalance)} USDT</p>
-              )}
-              {usdtBalance !== undefined && usdtBalance !== null && typeof usdtBalance === 'bigint' && (
-                <p>USDT Balance: {formatUSDT(usdtBalance)} USDT</p>
-              )}
-            </div>
           </div>
 
           {needsUSDTApproval ? (
@@ -312,11 +304,6 @@ export function ManagePosition() {
               placeholder="0.0"
               className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
             />
-            <div className="text-sm text-gray-400 mt-1">
-              {wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && (
-                <p>Available: {formatWBTC(wbtcBalance)} WBTC</p>
-              )}
-            </div>
           </div>
 
           <button
