@@ -54,15 +54,32 @@ This will test:
 npx hardhat run scripts/deploy.ts --network mainnet
 ```
 
+The deployment script will automatically:
+1. Verify that MCLEND token has an active McFun pool (CRITICAL)
+2. Deploy the McLendOriginationGate contract
+3. Display all configured addresses
+
 Expected output:
 ```
 Deploying McLendOriginationGate...
-McLendOriginationGate deployed to: 0x...
-Aave Pool: 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2
-Uniswap Router: 0xE592427A0AEce92De3Edee1F18E0157C05861564
-McFun Factory: 0x6E8717dd111Bea3f5B12785798F3d1380c01D72B
-Origination Fee: 1% (100 BPS)
+=====================================
+Configuration:
+  Aave Pool: 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2
+  Uniswap Router: 0xE592427A0AEce92De3Edee1F18E0157C05861564
+  McFun Factory: 0x6E8717dd111Bea3f5B12785798F3d1380c01D72B
+  USDT: 0xdAC17F958D2ee523a2206206994597C13D831ec7
+  WETH: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+  MCLEND: 0xe03e4d90a46f62ac405708ba5036f292d5e0edc8
+  Variable Debt USDT: 0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8
+  Origination Fee: 1% (100 BPS)
+=====================================
+
+Pre-deployment verification...
+✅ McFun pool verified for MCLEND: 0x...
+✅ McLendOriginationGate deployed to: 0x...
 ```
+
+**Important**: If the McFun pool check fails, deployment will abort. Ensure MCLEND has an active pool on McFun before deploying.
 
 **Save the deployed contract address!** You'll need it for the next steps.
 

@@ -50,6 +50,22 @@ interface IWETH {
     function balanceOf(address account) external view returns (uint256);
 }
 
+/**
+ * @title McLend Origination Gate
+ * @notice Atomic borrow with 1% origination fee that is automatically swapped and burned
+ * @dev This contract:
+ *      1. Borrows USDT from Aave V3 on behalf of user (requires credit delegation)
+ *      2. Collects 1% fee from borrowed amount
+ *      3. Swaps fee: USDT → WETH (Uniswap V3) → ETH (unwrap) → MCLEND (McFun)
+ *      4. Burns MCLEND by sending to dead address
+ *      All steps are atomic - any failure reverts the entire transaction
+ *
+ *      Dust Policy: Allows up to 1 wei residual per asset to prevent reverts from
+ *      rounding errors in swap operations. These amounts are economically insignificant:
+ *      - USDT: 1 wei = 0.000001 USDT (~$0.000001)
+ *      - WETH/ETH: 1 wei = 10^-18 (~$0.000000000000000001)
+ *      - MCLEND: 1 wei = negligible value
+ */
 contract McLendOriginationGate is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -134,6 +150,17 @@ contract McLendOriginationGate is ReentrancyGuard {
         variableDebtUSDT = IVariableDebtToken(_variableDebtUSDT);
     }
 
+    /**
+     * @notice Borrow USDT from Aave with atomic fee swap and burn
+     * @param netAmount Amount of USDT user will receive (net of fee)
+     * @param minEthOut Minimum WETH to receive from USDT swap (slippage protection)
+     * @param minMclendOut Minimum MCLEND to receive from ETH swap (slippage protection)
+     * @param deadline Unix timestamp deadline for swaps
+     * @dev Requirements:
+     *      - User must have sufficient Aave credit delegation
+     *      - User must approve this contract to spend fee amount in USDT
+     *      - All swaps must meet minimum output requirements
+     */
     function borrowWithFee(
         uint256 netAmount,
         uint256 minEthOut,
@@ -268,15 +295,44 @@ contract McLendOriginationGate is ReentrancyGuard {
         }
     }
 
+    /**
+     * @notice Get current residual balances in the contract
+     * @return usdtBalance USDT balance (should be 0-1 wei after successful operation)
+     * @return wethBalance WETH balance (should be 0-1 wei after successful operation)
+     * @return ethBalance ETH balance (should be 0-1 wei after successful operation)
+     * @return mclendBalance MCLEND balance (should be 0-1 wei after successful operation)
+     */
+    function getResidualBalances() external view returns (uint256 usdtBalance, uint256 wethBalance, uint256 ethBalance, uint256 mclendBalance) {
+        return (
+            usdt.balanceOf(address(this)),
+            weth.balanceOf(address(this)),
+            address(this).balance,
+            mclend.balanceOf(address(this))
+        );
+    }
+
+    /**
+     * @notice Calculate the total amount that must be delegated for a given net borrow
+     * @param netAmount Net amount user wants to receive
+     * @return Total amount including 1% fee that must be delegated
+     */
     function getRequiredDelegation(uint256 netAmount) external pure returns (uint256) {
         uint256 feeAmount = (netAmount * ORIGINATION_FEE_BPS) / BPS_DENOMINATOR;
         return netAmount + feeAmount;
     }
 
-    function checkUserDelegation(address user, uint256 netAmount) external view returns (bool, uint256, uint256) {
-        uint256 required = (netAmount * (BPS_DENOMINATOR + ORIGINATION_FEE_BPS)) / BPS_DENOMINATOR;
-        uint256 current = variableDebtUSDT.borrowAllowance(user, address(this));
-        return (current >= required, required, current);
+    /**
+     * @notice Check if user has sufficient credit delegation for a borrow
+     * @param user Address of the user
+     * @param netAmount Net amount user wants to borrow
+     * @return sufficient Whether user has sufficient delegation
+     * @return required Required delegation amount (including fee)
+     * @return current Current delegation amount
+     */
+    function checkUserDelegation(address user, uint256 netAmount) external view returns (bool sufficient, uint256 required, uint256 current) {
+        required = (netAmount * (BPS_DENOMINATOR + ORIGINATION_FEE_BPS)) / BPS_DENOMINATOR;
+        current = variableDebtUSDT.borrowAllowance(user, address(this));
+        sufficient = current >= required;
     }
 
     receive() external payable {}

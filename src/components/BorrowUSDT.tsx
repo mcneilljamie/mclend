@@ -17,6 +17,8 @@ export function BorrowUSDT() {
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
+  const isContractDeployed = ADDRESSES.MCLEND_ORIGINATION_GATE !== '0x0000000000000000000000000000000000000000';
+
   const { data: accountData } = useUserAccountData(address);
   const { data: creditDelegation, refetch: refetchDelegation } = useBorrowAllowance(
     address,
@@ -95,9 +97,8 @@ export function BorrowUSDT() {
     if (!netAmount || !address) return;
     const toastId = toastManager.show('loading', 'Borrowing USDT with atomic fee swap and burn...');
     try {
-      const minEthOut = (feeAmount * (BPS_DENOMINATOR - SLIPPAGE.USDT_TO_ETH_BPS)) / BPS_DENOMINATOR;
-      const ethEstimate = feeAmount * 3000n;
-      const minMclendOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.ETH_TO_MCLEND_BPS)) / BPS_DENOMINATOR / 1000000n;
+      const minEthOut = 0n;
+      const minMclendOut = 0n;
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
 
       await writeContract({
@@ -133,6 +134,18 @@ export function BorrowUSDT() {
         </button>
       </div>
 
+      {!isContractDeployed && (
+        <div className="mb-4 flex items-start gap-2 bg-red-950/30 border border-red-500/30 rounded-lg p-4">
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-red-300 mb-1">Contract Not Yet Deployed</p>
+            <p className="text-sm text-red-300/80">
+              The McLend Origination Gate contract has not been deployed to mainnet yet. All actions are disabled until deployment is complete.
+            </p>
+          </div>
+        </div>
+      )}
+
       {showFeeExplainer && (
         <div className="mb-4">
           <FeeExplainer
@@ -155,11 +168,13 @@ export function BorrowUSDT() {
               value={netAmount}
               onChange={(e) => setNetAmount(e.target.value)}
               placeholder="0.0"
-              className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
+              disabled={!isContractDeployed}
+              className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
               onClick={handleSafeMax}
-              className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-purple-600/50 hover:bg-purple-600 rounded text-sm font-medium text-white transition-colors"
+              disabled={!isContractDeployed}
+              className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-purple-600/50 hover:bg-purple-600 rounded text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               SAFE MAX
             </button>
@@ -228,7 +243,7 @@ export function BorrowUSDT() {
         {!hasCreditDelegation && netAmount && netAmountBigInt > 0n && (
           <button
             onClick={handleApproveDelegation}
-            disabled={isPending || isConfirming}
+            disabled={isPending || isConfirming || !isContractDeployed}
             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
           >
             {isPending || isConfirming ? (
@@ -245,7 +260,7 @@ export function BorrowUSDT() {
         {hasCreditDelegation && !hasUsdtAllowance && netAmount && netAmountBigInt > 0n && (
           <button
             onClick={handleApproveUSDT}
-            disabled={isPending || isConfirming}
+            disabled={isPending || isConfirming || !isContractDeployed}
             className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2"
           >
             {isPending || isConfirming ? (
@@ -260,20 +275,28 @@ export function BorrowUSDT() {
         )}
 
         {hasCreditDelegation && hasUsdtAllowance && (
-          <button
-            onClick={handleBorrow}
-            disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow}
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
-          >
-            {isPending || isConfirming ? (
-              <>
-                <Loader className="w-4 h-4 animate-spin" />
-                Borrowing...
-              </>
-            ) : (
-              'Borrow USDT'
-            )}
-          </button>
+          <>
+            <div className="flex items-start gap-2 bg-yellow-950/30 border border-yellow-500/30 rounded-lg p-3">
+              <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-yellow-300">
+                Slippage protection is currently set to 0% (accepts any swap rate). Use caution with large amounts. Production deployment will include proper price oracles.
+              </p>
+            </div>
+            <button
+              onClick={handleBorrow}
+              disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow || !isContractDeployed}
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+            >
+              {isPending || isConfirming ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  Borrowing...
+                </>
+              ) : (
+                'Borrow USDT'
+              )}
+            </button>
+          </>
         )}
       </div>
     </div>

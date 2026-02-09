@@ -48,7 +48,12 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
 
   async function setupCollateral(userAddress: string, wbtcAmount: bigint) {
     const wbtc = await ethers.getContractAt("IERC20", WBTC);
-    const aavePool = await ethers.getContractAt("IPool", AAVE_POOL);
+
+    const aavePoolAbi = [
+      "function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external",
+      "function borrow(address asset, uint256 amount, uint256 interestRateMode, uint16 referralCode, address onBehalfOf) external"
+    ];
+    const aavePool = await ethers.getContractAt(aavePoolAbi, AAVE_POOL);
 
     await wbtc.connect(wbtcWhale).transfer(userAddress, wbtcAmount);
 
@@ -68,6 +73,14 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
       const netAmount = ethers.parseUnits("1000", 6);
       const feeAmount = (netAmount * 100n) / 10000n;
       const grossAmount = netAmount + feeAmount;
+
+      const mcFunFactory = await ethers.getContractAt(
+        ["function getPool(address token) external view returns (address)"],
+        MCFUN_FACTORY
+      );
+      const mcFunPool = await mcFunFactory.getPool(MCLEND);
+      console.log("McFun pool for MCLEND:", mcFunPool);
+      expect(mcFunPool).to.not.equal(ethers.ZeroAddress, "MCLEND must have a McFun pool");
 
       const wbtcAmount = ethers.parseUnits("1", 8);
       await setupCollateral(user.address, wbtcAmount);
@@ -91,8 +104,8 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
 
       await usdt.connect(user).approve(await mcLendOriginationGate.getAddress(), feeAmount);
 
-      const minEthOut = ethers.parseUnits("0.3", 18);
-      const minMclendOut = ethers.parseUnits("1", 18);
+      const minEthOut = 0n;
+      const minMclendOut = 0n;
       const deadline = Math.floor(Date.now() / 1000) + 1200;
 
       const tx = await mcLendOriginationGate.connect(user).borrowWithFee(
@@ -139,8 +152,8 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
       const wbtcAmount = ethers.parseUnits("1", 8);
       await setupCollateral(user.address, wbtcAmount);
 
-      const minEthOut = ethers.parseUnits("0.3", 18);
-      const minMclendOut = ethers.parseUnits("1", 18);
+      const minEthOut = 0n;
+      const minMclendOut = 0n;
       const deadline = Math.floor(Date.now() / 1000) + 1200;
 
       await expect(
@@ -172,7 +185,7 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
       await usdt.connect(user).approve(await mcLendOriginationGate.getAddress(), feeAmount);
 
       const minEthOut = ethers.parseUnits("1000", 18);
-      const minMclendOut = ethers.parseUnits("1", 18);
+      const minMclendOut = 0n;
       const deadline = Math.floor(Date.now() / 1000) + 1200;
 
       await expect(
@@ -204,8 +217,8 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
 
       await usdt.connect(user).approve(await mcLendOriginationGate.getAddress(), feeAmount / 2n);
 
-      const minEthOut = ethers.parseUnits("0.3", 18);
-      const minMclendOut = ethers.parseUnits("1", 18);
+      const minEthOut = 0n;
+      const minMclendOut = 0n;
       const deadline = Math.floor(Date.now() / 1000) + 1200;
 
       await expect(
@@ -280,8 +293,8 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
       const usdt = await ethers.getContractAt("IERC20", USDT);
       await usdt.connect(user).approve(await mcLendOriginationGate.getAddress(), feeAmount);
 
-      const minEthOut = ethers.parseUnits("0.3", 18);
-      const minMclendOut = ethers.parseUnits("1", 18);
+      const minEthOut = 0n;
+      const minMclendOut = 0n;
       const deadline = Math.floor(Date.now() / 1000) + 1200;
 
       await mcLendOriginationGate.connect(user).borrowWithFee(

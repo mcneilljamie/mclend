@@ -22,6 +22,20 @@ async function main() {
   console.log("  Origination Fee: 1% (100 BPS)");
   console.log("=====================================\n");
 
+  console.log("Pre-deployment verification...");
+  const mcFunFactory = await ethers.getContractAt(
+    ["function getPool(address token) external view returns (address)"],
+    MCFUN_FACTORY
+  );
+  const mcFunPool = await mcFunFactory.getPool(MCLEND);
+
+  if (mcFunPool === ethers.ZeroAddress) {
+    throw new Error(`CRITICAL: MCLEND token ${MCLEND} does not have a McFun pool. Deployment aborted.`);
+  }
+
+  console.log("✅ McFun pool verified for MCLEND:", mcFunPool);
+  console.log();
+
   const McLendOriginationGate = await ethers.getContractFactory("McLendOriginationGate");
   const mcLendOriginationGate = await McLendOriginationGate.deploy(
     AAVE_POOL,
