@@ -6,10 +6,9 @@ import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useDebtTokenBalance } from '../hooks/useDebtToken';
 import { useTokenAllowance } from '../hooks/useTokenBalance';
-import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { formatHealthFactor, formatLTV, formatUSD, formatUSDT } from '../utils/format';
 import { toastManager } from './Toast';
-import { Loader, TrendingUp, TrendingDown, Percent } from 'lucide-react';
+import { Loader, TrendingUp, TrendingDown } from 'lucide-react';
 
 export function ManagePosition() {
   const { address } = useAccount();
@@ -20,8 +19,6 @@ export function ManagePosition() {
 
   const { data: accountData } = useUserAccountData(address);
   const { data: debtBalance } = useDebtTokenBalance(address);
-  const { liquidityRate } = useReserveData(ADDRESSES.WBTC as `0x${string}`);
-  const { variableBorrowRate } = useReserveData(ADDRESSES.USDT as `0x${string}`);
   const { data: usdtAllowance, refetch: refetchAllowance } = useTokenAllowance(
     ADDRESSES.USDT as `0x${string}`,
     address,
@@ -117,7 +114,7 @@ export function ManagePosition() {
     <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
       <h2 className="text-2xl font-bold text-white mb-6">Manage Position</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
           <p className="text-sm text-purple-300 mb-1">Health Factor</p>
           <p className={`text-3xl font-bold ${totalCollateral === 0n ? 'text-gray-500' : getHealthFactorColor(healthFactor)}`}>
@@ -141,22 +138,6 @@ export function ManagePosition() {
 
         <div className="bg-green-950/30 rounded-lg p-4 border border-green-500/30">
           <p className="text-sm text-green-300 mb-1 flex items-center gap-1">
-            <Percent className="w-4 h-4" />
-            WBTC Supply APY
-          </p>
-          <p className="text-3xl font-bold text-green-400">{formatAPY(liquidityRate)}%</p>
-        </div>
-
-        <div className="bg-orange-950/30 rounded-lg p-4 border border-orange-500/30">
-          <p className="text-sm text-orange-300 mb-1 flex items-center gap-1">
-            <Percent className="w-4 h-4" />
-            USDT Borrow APY
-          </p>
-          <p className="text-3xl font-bold text-orange-400">{formatAPY(variableBorrowRate)}%</p>
-        </div>
-
-        <div className="bg-green-950/30 rounded-lg p-4 border border-green-500/30">
-          <p className="text-sm text-green-300 mb-1 flex items-center gap-1">
             <TrendingUp className="w-4 h-4" />
             Total Collateral
           </p>
@@ -171,7 +152,7 @@ export function ManagePosition() {
           <p className="text-2xl font-bold text-white">{formatUSD(totalDebt, 8)}</p>
         </div>
 
-        <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30 md:col-span-2 lg:col-span-2">
+        <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
           <p className="text-sm text-purple-300 mb-1">Available to Borrow</p>
           <p className="text-2xl font-bold text-white">{formatUSD(availableBorrows, 8)}</p>
         </div>
