@@ -7,11 +7,11 @@ interface LandingPageProps {
 
 export function LandingPage({ onLaunchApp }: LandingPageProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20">
+    <div className="flex flex-col items-center justify-center py-8">
       <div className="max-w-4xl w-full">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-2xl mb-6 border border-purple-500/20">
-            <Bitcoin className="w-16 h-16 text-purple-400" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-2xl mb-4 border border-purple-500/20">
+            <Bitcoin className="w-12 h-12 text-purple-400" />
           </div>
           <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
             Borrow Against Bitcoin
@@ -21,7 +21,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-2xl shadow-purple-500/10 mb-12">
+        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-2xl shadow-purple-500/10 mb-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div className="text-center">
               <div className="bg-purple-500/10 rounded-xl p-4 mb-4 inline-block">
@@ -57,7 +57,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </div>
         </div>
 
-        <div className="space-y-12 mb-12">
+        <div className="space-y-8 mb-10">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-3">How It Works</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
@@ -110,7 +110,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
 
         <FeeExplainer />
 
-        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-xl mb-12 mt-12">
+        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-xl mb-10 mt-10">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">Why Choose DeFi Over TradFi?</h2>
             <p className="text-gray-400">
