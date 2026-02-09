@@ -14,6 +14,7 @@ describe("McLendOriginationGate", function () {
   const USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
   const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
   const MCLEND = "0xe03e4d90a46f62ac405708ba5036f292d5e0edc8";
+  const VARIABLE_DEBT_USDT = "0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8";
 
   beforeEach(async function () {
     [owner, user] = await ethers.getSigners();
@@ -25,7 +26,8 @@ describe("McLendOriginationGate", function () {
       MCFUN_FACTORY,
       USDT,
       WETH,
-      MCLEND
+      MCLEND,
+      VARIABLE_DEBT_USDT
     );
     await mcLendOriginationGate.waitForDeployment();
   });
@@ -55,6 +57,10 @@ describe("McLendOriginationGate", function () {
       expect(await mcLendOriginationGate.mclend()).to.equal(MCLEND);
     });
 
+    it("Should set the correct Variable Debt USDT address", async function () {
+      expect(await mcLendOriginationGate.variableDebtUSDT()).to.equal(VARIABLE_DEBT_USDT);
+    });
+
     it("Should set the correct origination fee", async function () {
       expect(await mcLendOriginationGate.ORIGINATION_FEE_BPS()).to.equal(100);
     });
@@ -72,7 +78,8 @@ describe("McLendOriginationGate", function () {
           MCFUN_FACTORY,
           USDT,
           WETH,
-          MCLEND
+          MCLEND,
+          VARIABLE_DEBT_USDT
         )
       ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");
     });
@@ -86,7 +93,8 @@ describe("McLendOriginationGate", function () {
           MCFUN_FACTORY,
           USDT,
           WETH,
-          MCLEND
+          MCLEND,
+          VARIABLE_DEBT_USDT
         )
       ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");
     });
@@ -100,7 +108,8 @@ describe("McLendOriginationGate", function () {
           ethers.ZeroAddress,
           USDT,
           WETH,
-          MCLEND
+          MCLEND,
+          VARIABLE_DEBT_USDT
         )
       ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");
     });
@@ -114,7 +123,8 @@ describe("McLendOriginationGate", function () {
           MCFUN_FACTORY,
           ethers.ZeroAddress,
           WETH,
-          MCLEND
+          MCLEND,
+          VARIABLE_DEBT_USDT
         )
       ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");
     });
@@ -128,7 +138,8 @@ describe("McLendOriginationGate", function () {
           MCFUN_FACTORY,
           USDT,
           ethers.ZeroAddress,
-          MCLEND
+          MCLEND,
+          VARIABLE_DEBT_USDT
         )
       ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");
     });
@@ -142,6 +153,22 @@ describe("McLendOriginationGate", function () {
           MCFUN_FACTORY,
           USDT,
           WETH,
+          ethers.ZeroAddress,
+          VARIABLE_DEBT_USDT
+        )
+      ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");
+    });
+
+    it("Should revert with invalid Variable Debt USDT address", async function () {
+      const McLendOriginationGate = await ethers.getContractFactory("McLendOriginationGate");
+      await expect(
+        McLendOriginationGate.deploy(
+          AAVE_POOL,
+          UNISWAP_ROUTER,
+          MCFUN_FACTORY,
+          USDT,
+          WETH,
+          MCLEND,
           ethers.ZeroAddress
         )
       ).to.be.revertedWithCustomError(mcLendOriginationGate, "InvalidAddress");

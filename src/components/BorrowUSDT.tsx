@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseUnits } from 'viem';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS, MCLEND_FEE_BPS, BPS_DENOMINATOR, SLIPPAGE } from '../config/contracts';
-import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI } from '../config/abis';
+import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI, IERC20_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
 import { toastManager } from './Toast';
-import { Loader, AlertCircle } from 'lucide-react';
+import { Loader, AlertCircle, CheckCircle2, Circle } from 'lucide-react';
 
 export function BorrowUSDT() {
   const { address } = useAccount();
@@ -20,6 +20,13 @@ export function BorrowUSDT() {
     address,
     ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`
   );
+
+  const { data: usdtAllowance, refetch: refetchUsdtAllowance } = useReadContract({
+    address: ADDRESSES.USDT as `0x${string}`,
+    abi: IERC20_ABI,
+    functionName: 'allowance',
+    args: address ? [address, ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`] : undefined,
+  });
 
   const netAmountBigInt = useMemo(() => {
     if (!netAmount) return 0n;
@@ -40,7 +47,9 @@ export function BorrowUSDT() {
     [netAmountBigInt]
   );
 
-  const needsCreditDelegation = creditDelegation !== undefined && grossAmount > creditDelegation;
+  const hasCreditDelegation = creditDelegation !== undefined && creditDelegation >= grossAmount;
+  const hasUsdtAllowance = usdtAllowance !== undefined && usdtAllowance >= feeAmount;
+  const needsSetup = !hasCreditDelegation || !hasUsdtAllowance;
 
   const availableBorrow = accountData?.[2] || 0n;
   const safeMaxBorrow = useMemo(
@@ -49,19 +58,34 @@ export function BorrowUSDT() {
   );
 
   const handleApproveDelegation = async () => {
-    if (!grossAmount) return;
-    const toastId = toastManager.show('loading', 'Approving credit delegation...');
+    const toastId = toastManager.show('loading', 'Approving credit delegation (one-time setup)...');
     try {
       await writeContract({
         address: ADDRESSES.VARIABLE_DEBT_USDT as `0x${string}`,
         abi: VARIABLE_DEBT_TOKEN_ABI,
         functionName: 'approveDelegation',
-        args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, grossAmount],
+        args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'Credit delegation approved!', hash);
-      refetchDelegation();
+      toastManager.update(toastId, 'success', 'Credit delegation approved for unlimited borrows!', hash);
+      setTimeout(() => refetchDelegation(), 2000);
     } catch (error: any) {
       toastManager.update(toastId, 'error', error.message || 'Failed to approve delegation');
+    }
+  };
+
+  const handleApproveUSDT = async () => {
+    const toastId = toastManager.show('loading', 'Approving USDT for fee collection (one-time setup)...');
+    try {
+      await writeContract({
+        address: ADDRESSES.USDT as `0x${string}`,
+        abi: IERC20_ABI,
+        functionName: 'approve',
+        args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
+      });
+      toastManager.update(toastId, 'success', 'USDT approved for unlimited fee collection!', hash);
+      setTimeout(() => refetchUsdtAllowance(), 2000);
+    } catch (error: any) {
+      toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
     }
   };
 
@@ -150,10 +174,55 @@ export function BorrowUSDT() {
           </div>
         )}
 
-        {needsCreditDelegation ? (
+        {netAmount && netAmountBigInt > 0n && (
+          <div className="bg-blue-950/30 border border-blue-500/30 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-blue-300 mb-3">Setup Progress</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                {hasCreditDelegation ? (
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                ) : (
+                  <Circle className="w-5 h-5 text-gray-500" />
+                )}
+                <span className={hasCreditDelegation ? "text-green-300 text-sm" : "text-gray-400 text-sm"}>
+                  Credit delegation approved
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {hasUsdtAllowance ? (
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                ) : (
+                  <Circle className="w-5 h-5 text-gray-500" />
+                )}
+                <span className={hasUsdtAllowance ? "text-green-300 text-sm" : "text-gray-400 text-sm"}>
+                  USDT fee approval set
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!hasCreditDelegation && netAmount && netAmountBigInt > 0n && (
           <button
             onClick={handleApproveDelegation}
-            disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow}
+            disabled={isPending || isConfirming}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+          >
+            {isPending || isConfirming ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Approving...
+              </>
+            ) : (
+              'Step 1: Approve Credit Delegation (One-Time)'
+            )}
+          </button>
+        )}
+
+        {hasCreditDelegation && !hasUsdtAllowance && netAmount && netAmountBigInt > 0n && (
+          <button
+            onClick={handleApproveUSDT}
+            disabled={isPending || isConfirming}
             className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2"
           >
             {isPending || isConfirming ? (
@@ -162,10 +231,12 @@ export function BorrowUSDT() {
                 Approving...
               </>
             ) : (
-              'Approve Credit Delegation'
+              'Step 2: Approve USDT Fee (One-Time)'
             )}
           </button>
-        ) : (
+        )}
+
+        {hasCreditDelegation && hasUsdtAllowance && (
           <button
             onClick={handleBorrow}
             disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow}

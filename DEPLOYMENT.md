@@ -1,6 +1,6 @@
 # McLend Deployment Guide
 
-This guide walks you through deploying the McLendBorrowGate smart contract to Ethereum mainnet.
+This guide walks you through deploying the McLendOriginationGate smart contract to Ethereum mainnet.
 
 ## Prerequisites
 
@@ -56,11 +56,12 @@ npx hardhat run scripts/deploy.ts --network mainnet
 
 Expected output:
 ```
-Deploying McLendBorrowGate...
-McLendBorrowGate deployed to: 0x...
+Deploying McLendOriginationGate...
+McLendOriginationGate deployed to: 0x...
 Aave Pool: 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2
-Fee Receiver: 0x993aee79ee816b636d80f06186325b19a0ee3d45
-Fee BPS: 100 (1%)
+Uniswap Router: 0xE592427A0AEce92De3Edee1F18E0157C05861564
+McFun Factory: 0x6E8717dd111Bea3f5B12785798F3d1380c01D72B
+Origination Fee: 1% (100 BPS)
 ```
 
 **Save the deployed contract address!** You'll need it for the next steps.
@@ -70,8 +71,12 @@ Fee BPS: 100 (1%)
 ```bash
 npx hardhat verify --network mainnet <DEPLOYED_ADDRESS> \
   0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2 \
-  0x993aee79ee816b636d80f06186325b19a0ee3d45 \
-  100
+  0xE592427A0AEce92De3Edee1F18E0157C05861564 \
+  0x6E8717dd111Bea3f5B12785798F3d1380c01D72B \
+  0xdAC17F958D2ee523a2206206994597C13D831ec7 \
+  0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 \
+  0xe03e4d90a46f62ac405708ba5036f292d5e0edc8 \
+  0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8
 ```
 
 Replace `<DEPLOYED_ADDRESS>` with your actual deployed address.
@@ -83,7 +88,7 @@ Edit `src/config/contracts.ts` and update:
 ```typescript
 export const ADDRESSES = {
   // ... other addresses
-  MCLEND_BORROW_GATE: '0xYOUR_DEPLOYED_ADDRESS_HERE',
+  MCLEND_ORIGINATION_GATE: '0xYOUR_DEPLOYED_ADDRESS_HERE',
   // ... rest
 } as const;
 ```
@@ -167,26 +172,16 @@ These are the Aave V3 mainnet addresses used by McLend:
 - [ ] Documentation updated with live addresses
 - [ ] Security audit completed (if going public)
 
-## Administrative Functions
+## Immutable Design
 
-As contract owner, you can:
+McLendOriginationGate has NO administrative functions:
+- No owner or admin role
+- No upgradeability
+- No ability to change addresses, fees, or parameters
+- Cannot be paused or modified after deployment
+- Completely trustless and permissionless
 
-### Update Fee Receiver
-```solidity
-setFeeReceiver(newAddress)
-```
-
-### Update Fee Percentage
-```solidity
-setFeeBps(newFeeBps) // Max 500 (5%)
-```
-
-### Transfer Ownership
-```solidity
-transferOwnership(newOwner)
-```
-
-All admin functions emit events visible on Etherscan.
+This is intentional for maximum security and transparency.
 
 ## Security Considerations
 

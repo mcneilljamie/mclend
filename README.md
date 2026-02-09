@@ -13,21 +13,30 @@ McLend is a production-ready decentralized lending application built on Aave V3 
 
 ## Architecture
 
-### Smart Contract: McLendBorrowGate
+### Smart Contract: McLendOriginationGate
 
-The `McLendBorrowGate.sol` contract serves as a non-custodial wrapper around Aave V3 that charges an origination fee on borrows.
+The `McLendOriginationGate.sol` contract is an immutable, permissionless lending origination wrapper that atomically:
+1. Borrows USDT from Aave V3 on behalf of user
+2. Captures 1% origination fee
+3. Swaps fee through Uniswap V3 (USDT→ETH) and McFun (ETH→MCLEND)
+4. Burns MCLEND tokens to dead address
 
 **Key Features:**
-- Charges 1% fee (100 basis points) on net borrow amount
-- Maximum fee cap of 5% (500 basis points) for safety
-- Owner can update fee receiver and fee percentage
-- Uses Aave's credit delegation for secure borrowing
-- Non-custodial for collateral (users deposit directly to Aave)
+- **Immutable**: No admin functions, no upgradeability, no governance
+- **Atomic**: Entire flow executes in single transaction or reverts
+- **Trustless**: Code is law, no human intervention possible
+- **USDT-Safe**: Uses OpenZeppelin SafeERC20 for USDT compatibility
+- **Credit Delegation**: Secure borrowing through Aave V3
+- **Auto-Burn**: Fee converted to MCLEND and burned automatically
 
-**Deployed Addresses:**
+**Mainnet Addresses:**
 - Aave V3 Pool: `0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2`
-- Fee Receiver: `0x993aee79ee816b636d80f06186325b19a0ee3d45`
-- McLendBorrowGate: Deploy using `npm run deploy:contracts`
+- Uniswap Router: `0xE592427A0AEce92De3Edee1F18E0157C05861564`
+- McFun Factory: `0x6E8717dd111Bea3f5B12785798F3d1380c01D72B`
+- USDT: `0xdAC17F958D2ee523a2206206994597C13D831ec7`
+- WETH: `0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2`
+- MCLEND: `0xe03e4d90a46f62ac405708ba5036f292d5e0edc8`
+- Variable Debt USDT: `0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8`
 
 ### Frontend Application
 
@@ -86,7 +95,7 @@ Deploy to mainnet (requires funded wallet):
 npx hardhat run scripts/deploy.ts --network mainnet
 ```
 
-After deployment, update `MCLEND_BORROW_GATE` address in `src/config/contracts.ts`.
+After deployment, update `MCLEND_ORIGINATION_GATE` address in `src/config/contracts.ts`.
 
 ### 4. Run Development Server
 
@@ -103,18 +112,25 @@ npm run dev
 4. Confirm deposit transaction
 5. WBTC is supplied to Aave V3 Pool
 
-### Step 2: Approve Credit Delegation
-1. Enter desired net USDT borrow amount
-2. System calculates gross amount (net + 1% fee)
-3. Approve credit delegation to McLendBorrowGate for gross amount
-4. This allows McLend to borrow USDT on your behalf
+### Step 2: Approve Credit Delegation (One-Time)
+1. Approve Variable Debt USDT delegation to McLendOriginationGate
+2. Can use max approval for unlimited future borrows
+3. Revocable at any time by user
+4. Required: allows McLend to borrow USDT on your behalf
 
 ### Step 3: Borrow USDT
-1. Confirm borrow transaction through McLendBorrowGate
-2. Contract borrows gross amount from Aave
-3. Fee (1%) sent to fee receiver
-4. Net amount sent to your wallet
-5. Debt recorded in your name in Aave
+1. Enter desired net USDT borrow amount
+2. System calculates: gross = net + 1% fee, slippage parameters
+3. Approve USDT spending for fee amount (happens after borrow)
+4. Confirm borrow transaction through McLendOriginationGate
+5. **Atomic execution:**
+   - Contract borrows gross amount from Aave (debt in your name)
+   - You receive net USDT amount in your wallet
+   - Contract pulls fee from you in USDT
+   - Contract swaps USDT→ETH on Uniswap
+   - Contract swaps ETH→MCLEND on McFun
+   - Contract burns MCLEND to dead address
+6. All steps succeed or entire transaction reverts
 
 ### Step 4: Manage Position
 - **Monitor Health Factor**: Keep above 1.5 for safety
@@ -149,8 +165,12 @@ After deployment, verify on Etherscan:
 ```bash
 npx hardhat verify --network mainnet DEPLOYED_ADDRESS \
   0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2 \
-  0x993aee79ee816b636d80f06186325b19a0ee3d45 \
-  100
+  0xE592427A0AEce92De3Edee1F18E0157C05861564 \
+  0x6E8717dd111Bea3f5B12785798F3d1380c01D72B \
+  0xdAC17F958D2ee523a2206206994597C13D831ec7 \
+  0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 \
+  0xe03e4d90a46f62ac405708ba5036f292d5e0edc8 \
+  0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8
 ```
 
 ## Analytics & Tracking

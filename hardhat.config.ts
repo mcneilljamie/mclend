@@ -12,6 +12,13 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    hardhat: {
+      forking: {
+        url: process.env.VITE_ETHEREUM_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/demo",
+        blockNumber: 18500000,
+      },
+      chainId: 1,
+    },
     mainnet: {
       type: "http",
       url: process.env.VITE_ETHEREUM_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/demo",

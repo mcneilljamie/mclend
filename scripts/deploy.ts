@@ -7,6 +7,7 @@ async function main() {
   const USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
   const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
   const MCLEND = "0xe03e4d90a46f62ac405708ba5036f292d5e0edc8";
+  const VARIABLE_DEBT_USDT = "0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8";
 
   console.log("Deploying McLendOriginationGate...");
   console.log("=====================================");
@@ -17,6 +18,7 @@ async function main() {
   console.log("  USDT:", USDT);
   console.log("  WETH:", WETH);
   console.log("  MCLEND:", MCLEND);
+  console.log("  Variable Debt USDT:", VARIABLE_DEBT_USDT);
   console.log("  Origination Fee: 1% (100 BPS)");
   console.log("=====================================\n");
 
@@ -27,7 +29,8 @@ async function main() {
     MCFUN_FACTORY,
     USDT,
     WETH,
-    MCLEND
+    MCLEND,
+    VARIABLE_DEBT_USDT
   );
 
   await mcLendOriginationGate.waitForDeployment();
@@ -52,7 +55,7 @@ async function main() {
 
   console.log("To verify on Etherscan, run:");
   console.log(
-    `npx hardhat verify --network mainnet ${address} ${AAVE_POOL} ${UNISWAP_ROUTER} ${MCFUN_FACTORY} ${USDT} ${WETH} ${MCLEND}`
+    `npx hardhat verify --network mainnet ${address} ${AAVE_POOL} ${UNISWAP_ROUTER} ${MCFUN_FACTORY} ${USDT} ${WETH} ${MCLEND} ${VARIABLE_DEBT_USDT}`
   );
 
   console.log("\nUpdate frontend config:");

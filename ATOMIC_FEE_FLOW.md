@@ -268,8 +268,22 @@ npx hardhat verify --network mainnet <CONTRACT_ADDRESS> \
 
 ### Prerequisites
 1. User must have WBTC deposited as collateral on Aave
-2. User must approve credit delegation to McLendOriginationGate
-3. User must have sufficient borrowing capacity
+2. User must approve credit delegation to McLendOriginationGate (VariableDebtUSDT.approveDelegation)
+3. User must approve USDT transfer to McLendOriginationGate for fee collection
+4. User must have sufficient borrowing capacity
+
+### Credit Delegation Flow
+**Required before first borrow:**
+```solidity
+// Step 1: Approve credit delegation (one-time, can use max)
+variableDebtUSDT.approveDelegation(mcLendOriginationGate, type(uint256).max);
+
+// Step 2: Approve USDT for fee collection
+usdt.approve(mcLendOriginationGate, feeAmount);
+
+// Step 3: Execute borrow
+mcLendOriginationGate.borrowWithFee(netAmount, minEthOut, minMclendOut, deadline);
+```
 
 ### Transaction Parameters
 ```typescript
@@ -290,18 +304,50 @@ Monitor emitted events to track the complete flow:
 - `SwapExecuted` (ETH→MCLEND): Second swap complete
 - `TokensBurned`: Final burn confirmation
 
+## USDT Compatibility & SafeERC20
+
+### Why USDT Requires Special Handling
+USDT on Ethereum mainnet has a non-standard ERC20 implementation:
+- `approve()` and `transferFrom()` return `void` instead of `bool` on some methods
+- `approve()` requires existing allowance to be 0 before setting a new value
+- Direct usage can cause silent failures
+
+### SafeERC20 Solution
+McLendOriginationGate uses OpenZeppelin's SafeERC20 library:
+```solidity
+using SafeERC20 for IERC20;
+
+// Instead of: usdt.approve(router, amount)
+usdt.forceApprove(router, amount);  // Handles USDT edge cases
+
+// Instead of: usdt.transferFrom(user, contract, amount)
+usdt.safeTransferFrom(user, contract, amount);  // Reverts on failure
+
+// Instead of: mclend.transfer(dead, amount)
+mclend.safeTransfer(dead, amount);  // Ensures success
+```
+
+**Benefits:**
+- Automatic handling of non-standard returns
+- Safe approval with `forceApprove` (approve(0) then approve(amount))
+- Guaranteed revert on failure (no silent failures)
+- Mainnet-proven safety
+
 ## Comparison with Previous System
 
-| Feature | McLendBorrowGate (Old) | McLendOriginationGate (New) |
+| Feature | McLendBorrowGate (DELETED) | McLendOriginationGate (Current) |
 |---------|------------------------|----------------------------|
+| Status | Removed - Incorrect Implementation | Active - Production Ready |
 | Admin Functions | Yes (Ownable) | None |
-| Fee Destination | Treasury address | Burned |
+| Fee Destination | Treasury address | Burned via atomic swap |
 | Upgradeability | Owner can change fee/receiver | Immutable |
-| Fee Processing | Manual | Automatic atomic |
+| Fee Processing | Manual, nonsensical transfer | Automatic atomic swap+burn |
 | Swap Integration | None | Uniswap V3 + McFun |
-| Burn Mechanism | None | Automatic |
+| Burn Mechanism | None | Automatic MCLEND burn |
+| SafeERC20 | No | Yes - USDT compatible |
+| Credit Delegation | Not properly implemented | Fully implemented with checks |
 | Governance | Required | Not needed |
-| Transparency | Medium | Maximum |
+| Transparency | Low | Maximum |
 
 ## Testing
 
