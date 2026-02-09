@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi';
+import { createConfig, http, fallback } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
 import { injected, walletConnect } from 'wagmi/connectors';
 
@@ -14,8 +14,11 @@ export const wagmiConfig = createConfig({
     }),
   ],
   transports: {
-    [mainnet.id]: http(
-      import.meta.env.VITE_ETHEREUM_RPC_URL || 'https://eth-mainnet.g.alchemy.com/v2/demo'
-    ),
+    [mainnet.id]: fallback([
+      http(import.meta.env.VITE_ETHEREUM_RPC_URL),
+      http('https://eth.llamarpc.com'),
+      http('https://rpc.ankr.com/eth'),
+      http('https://ethereum.publicnode.com'),
+    ]),
   },
 });
