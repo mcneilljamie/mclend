@@ -309,12 +309,6 @@ export function BorrowUSDT() {
 
         {hasCreditDelegation && hasUsdtAllowance && (
           <>
-            <div className="flex items-start gap-2 bg-blue-950/30 border border-blue-500/30 rounded-lg p-3">
-              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-300">
-                Slippage protection: 3% for USDT→ETH, 50% for ETH→MCLEND. Prices sourced from Aave Oracle{wethPrice ? ` (Current ETH: $${(Number(wethPrice) / 1e8).toFixed(2)})` : ''}. Transaction will revert if market rates are worse than slippage limits.
-              </p>
-            </div>
             <button
               onClick={handleBorrow}
               disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow || !isContractDeployed}
