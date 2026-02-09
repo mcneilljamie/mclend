@@ -104,8 +104,16 @@ describe("McLendOriginationGate - Mainnet Fork Tests", function () {
 
       await usdt.connect(user).approve(await mcLendOriginationGate.getAddress(), feeAmount);
 
-      const minEthOut = 0n;
-      const minMclendOut = 0n;
+      const ETH_USD_PRICE = 3000n;
+      const USDT_TO_ETH_DECIMALS_ADJUSTMENT = 10n ** 12n;
+      const BPS_DENOMINATOR = 10000n;
+      const USDT_TO_ETH_SLIPPAGE_BPS = 300n;
+      const ETH_TO_MCLEND_SLIPPAGE_BPS = 5000n;
+
+      const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / ETH_USD_PRICE;
+      const minEthOut = (ethEstimate * (BPS_DENOMINATOR - USDT_TO_ETH_SLIPPAGE_BPS)) / BPS_DENOMINATOR;
+      const minMclendOut = (ethEstimate * (BPS_DENOMINATOR - ETH_TO_MCLEND_SLIPPAGE_BPS)) / BPS_DENOMINATOR;
+
       const deadline = Math.floor(Date.now() / 1000) + 1200;
 
       const tx = await mcLendOriginationGate.connect(user).borrowWithFee(

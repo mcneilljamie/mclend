@@ -97,8 +97,14 @@ export function BorrowUSDT() {
     if (!netAmount || !address) return;
     const toastId = toastManager.show('loading', 'Borrowing USDT with atomic fee swap and burn...');
     try {
-      const minEthOut = 0n;
-      const minMclendOut = 0n;
+      const ETH_USD_PRICE = 3000n;
+      const USDT_TO_ETH_DECIMALS_ADJUSTMENT = 10n ** 12n;
+
+      const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / ETH_USD_PRICE;
+      const minEthOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.USDT_TO_ETH_BPS)) / BPS_DENOMINATOR;
+
+      const minMclendOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.ETH_TO_MCLEND_BPS)) / BPS_DENOMINATOR;
+
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
 
       await writeContract({
@@ -276,10 +282,10 @@ export function BorrowUSDT() {
 
         {hasCreditDelegation && hasUsdtAllowance && (
           <>
-            <div className="flex items-start gap-2 bg-yellow-950/30 border border-yellow-500/30 rounded-lg p-3">
-              <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-300">
-                Slippage protection is currently set to 0% (accepts any swap rate). Use caution with large amounts. Production deployment will include proper price oracles.
+            <div className="flex items-start gap-2 bg-blue-950/30 border border-blue-500/30 rounded-lg p-3">
+              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-blue-300">
+                Slippage protection: 3% for USDT→ETH, 50% for ETH→MCLEND. Price estimates based on $3,000/ETH. Transaction will revert if market rates are worse than these limits.
               </p>
             </div>
             <button
