@@ -186,6 +186,23 @@ export function ManagePosition() {
     return 'text-red-400';
   };
 
+  const calculateLiquidationPrice = () => {
+    if (!wbtcPrice || totalCollateral === 0n || totalDebt === 0n || liquidationThreshold === 0n) {
+      return null;
+    }
+
+    const liquidationPrice = (wbtcPrice * totalDebt * 10000n) / (liquidationThreshold * totalCollateral);
+    return liquidationPrice;
+  };
+
+  const getLiquidationPriceColor = (liquidationPrice: bigint | null) => {
+    if (!liquidationPrice || !wbtcPrice) return 'text-gray-500';
+    const percentFromCurrent = Number((liquidationPrice * 100n) / wbtcPrice);
+    if (percentFromCurrent >= 80) return 'text-red-400';
+    if (percentFromCurrent >= 60) return 'text-orange-400';
+    return 'text-green-400';
+  };
+
   return (
     <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
       <h2 className="text-2xl font-bold text-white mb-6">Manage Position</h2>
@@ -206,9 +223,17 @@ export function ManagePosition() {
         </div>
 
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
-          <p className="text-sm text-purple-300 mb-1">Liquidation Threshold</p>
-          <p className={`text-3xl font-bold ${totalCollateral === 0n ? 'text-gray-500' : 'text-white'}`}>
-            {totalCollateral === 0n ? '—' : `${formatLTV(liquidationThreshold)}%`}
+          <p className="text-sm text-purple-300 mb-1">Liquidation Price</p>
+          <p className={`text-3xl font-bold ${(() => {
+            const liqPrice = calculateLiquidationPrice();
+            if (!liqPrice) return 'text-gray-500';
+            return getLiquidationPriceColor(liqPrice);
+          })()}`}>
+            {(() => {
+              const liqPrice = calculateLiquidationPrice();
+              if (!liqPrice) return '—';
+              return formatUSD(liqPrice, 8);
+            })()}
           </p>
         </div>
 
