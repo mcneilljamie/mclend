@@ -82,7 +82,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
               </div>
               <h3 className="text-white font-semibold mb-2">Borrow USDT</h3>
               <p className="text-gray-400 text-sm">
-                Instantly borrow up to 80% LTV in stablecoins against your Bitcoin collateral.
+                Instantly borrow up to 73% LTV in stablecoins against your Bitcoin collateral.
               </p>
             </div>
 
@@ -224,7 +224,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 <div className="flex justify-center mb-2">
                   <Zap className="w-8 h-8 text-purple-400" />
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">80% LTV</div>
+                <div className="text-2xl font-bold text-white mb-1">73% LTV</div>
                 <p className="text-sm text-gray-400">Maximum loan-to-value</p>
               </div>
             </div>
