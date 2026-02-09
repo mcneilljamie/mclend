@@ -102,7 +102,9 @@ export function ManagePosition() {
   };
 
   const getHealthFactorColor = (hf: bigint) => {
-    const hfNum = Number(formatHealthFactor(hf));
+    const formatted = formatHealthFactor(hf);
+    if (formatted === '∞') return 'text-green-400';
+    const hfNum = Number(formatted);
     if (hfNum >= 1.5) return 'text-green-400';
     if (hfNum >= 1.1) return 'text-orange-400';
     return 'text-red-400';
@@ -116,7 +118,7 @@ export function ManagePosition() {
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
           <p className="text-sm text-purple-300 mb-1">Health Factor</p>
           <p className={`text-3xl font-bold ${getHealthFactorColor(healthFactor)}`}>
-            {healthFactor > 0n ? formatHealthFactor(healthFactor) : '∞'}
+            {formatHealthFactor(healthFactor)}
           </p>
         </div>
 

@@ -29,6 +29,10 @@ export function parseUSDT(value: string): bigint {
 
 export function formatHealthFactor(value: bigint): string {
   if (value === 0n) return '0';
+  // If health factor is unreasonably large (no debt), display infinity
+  // Aave returns type(uint256).max when there's no debt
+  const MAX_REASONABLE_HF = 10n ** 20n; // 100 with 18 decimals
+  if (value > MAX_REASONABLE_HF) return '∞';
   const formatted = formatUnits(value, 18);
   return Number(formatted).toFixed(2);
 }
