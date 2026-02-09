@@ -117,8 +117,8 @@ export function ManagePosition() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
           <p className="text-sm text-purple-300 mb-1">Health Factor</p>
-          <p className={`text-3xl font-bold ${getHealthFactorColor(healthFactor)}`}>
-            {formatHealthFactor(healthFactor)}
+          <p className={`text-3xl font-bold ${totalCollateral === 0n ? 'text-gray-500' : getHealthFactorColor(healthFactor)}`}>
+            {totalCollateral === 0n ? '—' : formatHealthFactor(healthFactor)}
           </p>
         </div>
 
