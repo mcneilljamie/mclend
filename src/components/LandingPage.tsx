@@ -230,13 +230,6 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
         </div>
 
         <FeeExplainer />
-
-        <div className="bg-purple-950/30 border border-purple-500/20 rounded-xl p-6 backdrop-blur-sm">
-          <p className="text-sm text-gray-400 text-center">
-            <span className="text-purple-400 font-semibold">Ethereum Mainnet Only.</span> Maintain health factor above 1.5 to avoid liquidation.
-            Your collateral remains non-custodial at all times.
-          </p>
-        </div>
       </div>
     </div>
   );
