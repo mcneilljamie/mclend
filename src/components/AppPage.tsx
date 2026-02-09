@@ -23,7 +23,9 @@ export function AppPage() {
           <p className="text-gray-400 mb-8">
             Connect your Ethereum wallet to start borrowing against your Bitcoin collateral.
           </p>
-          <WalletConnect />
+          <div className="flex justify-center">
+            <WalletConnect />
+          </div>
         </div>
       </div>
     );
