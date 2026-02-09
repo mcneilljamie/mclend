@@ -7,11 +7,13 @@ import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
 import { toastManager } from './Toast';
-import { Loader, AlertCircle, CheckCircle2, Circle } from 'lucide-react';
+import { Loader, AlertCircle, CheckCircle2, Circle, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { FeeExplainer } from './FeeExplainer';
 
 export function BorrowUSDT() {
   const { address } = useAccount();
   const [netAmount, setNetAmount] = useState('');
+  const [showFeeExplainer, setShowFeeExplainer] = useState(false);
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
@@ -119,7 +121,28 @@ export function BorrowUSDT() {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
-      <h2 className="text-2xl font-bold text-white mb-4">Borrow USDT</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-white">Borrow USDT</h2>
+        <button
+          onClick={() => setShowFeeExplainer(!showFeeExplainer)}
+          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          <Info className="w-4 h-4" />
+          <span>How fees work</span>
+          {showFeeExplainer ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+      </div>
+
+      {showFeeExplainer && (
+        <div className="mb-4">
+          <FeeExplainer
+            netAmount={netAmount || undefined}
+            feeAmount={netAmount ? formatUSDT(feeAmount) : undefined}
+            grossAmount={netAmount ? formatUSDT(grossAmount) : undefined}
+            compact={true}
+          />
+        </div>
+      )}
 
       <div className="space-y-4">
         <div>

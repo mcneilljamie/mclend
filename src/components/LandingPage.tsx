@@ -1,4 +1,5 @@
 import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { FeeExplainer } from './FeeExplainer';
 
 interface LandingPageProps {
   onLaunchApp: () => void;
@@ -107,7 +108,9 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-xl mb-12">
+        <FeeExplainer />
+
+        <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-xl mb-12 mt-12">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">Why Choose DeFi Over TradFi?</h2>
             <p className="text-gray-400">
