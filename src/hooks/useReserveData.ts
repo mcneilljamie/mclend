@@ -9,15 +9,25 @@ export function useReserveData(asset: `0x${string}`) {
     functionName: 'getReserveData',
     args: [asset],
     query: {
-      refetchInterval: 30000, // Refetch every 30 seconds
+      refetchInterval: 30000,
+      enabled: true,
     },
   });
 
-  // getReserveData returns a struct with named properties
-  // Access by property names for better type safety
+  // getReserveData returns a struct - viem/wagmi can return it as array or object
   const reserveData = data as any;
-  const liquidityRate = reserveData?.currentLiquidityRate as bigint | undefined; // Supply/Deposit APY
-  const variableBorrowRate = reserveData?.currentVariableBorrowRate as bigint | undefined; // Variable Borrow APY
+
+  // Array indices: [0] configuration, [1] liquidityIndex, [2] currentLiquidityRate,
+  // [3] variableBorrowIndex, [4] currentVariableBorrowRate, [5] stableBorrowRate, ...
+  const liquidityRate = (reserveData?.currentLiquidityRate ?? reserveData?.[2]) as bigint | undefined;
+  const variableBorrowRate = (reserveData?.currentVariableBorrowRate ?? reserveData?.[4]) as bigint | undefined;
+
+  // Debug logging
+  if (data && !liquidityRate && !variableBorrowRate) {
+    console.log('Reserve data for', asset, ':', data);
+    console.log('Type:', typeof data, 'Array?', Array.isArray(data));
+    console.log('Keys:', data ? Object.keys(data) : 'no data');
+  }
 
   return {
     data,
