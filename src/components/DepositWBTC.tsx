@@ -4,6 +4,7 @@ import { parseUnits } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
 import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useTokenBalance, useTokenAllowance } from '../hooks/useTokenBalance';
+import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { formatWBTC } from '../utils/format';
 import { toastManager } from './Toast';
 import { Loader } from 'lucide-react';
@@ -24,6 +25,8 @@ export function DepositWBTC() {
     address,
     ADDRESSES.AAVE_POOL as `0x${string}`
   );
+
+  const { liquidityRate } = useReserveData(ADDRESSES.WBTC as `0x${string}`);
 
   const needsApproval = allowance !== undefined && amount !== '' &&
     parseUnits(amount || '0', TOKEN_DECIMALS.WBTC) > allowance;
@@ -72,7 +75,13 @@ export function DepositWBTC() {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
-      <h2 className="text-2xl font-bold text-white mb-4">Deposit WBTC Collateral</h2>
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-white">Deposit WBTC Collateral</h2>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-sm text-gray-400">Earning APY:</span>
+          <span className="text-lg font-semibold text-green-400">{formatAPY(liquidityRate)}%</span>
+        </div>
+      </div>
 
       <div className="space-y-4">
         <div>

@@ -5,6 +5,7 @@ import { ADDRESSES, TOKEN_DECIMALS, MCLEND_FEE_BPS, BPS_DENOMINATOR, SLIPPAGE } 
 import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI, IERC20_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
+import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
 import { toastManager } from './Toast';
 import { Loader, AlertCircle, CheckCircle2, Circle, ChevronDown, ChevronUp, Info } from 'lucide-react';
@@ -31,6 +32,8 @@ export function BorrowUSDT() {
     functionName: 'allowance',
     args: address ? [address, ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`] : undefined,
   });
+
+  const { variableBorrowRate } = useReserveData(ADDRESSES.USDT as `0x${string}`);
 
   const netAmountBigInt = useMemo(() => {
     if (!netAmount) return 0n;
@@ -128,8 +131,14 @@ export function BorrowUSDT() {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-white">Borrow USDT</h2>
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Borrow USDT</h2>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-sm text-gray-400">Variable APY:</span>
+            <span className="text-lg font-semibold text-orange-400">{formatAPY(variableBorrowRate)}%</span>
+          </div>
+        </div>
         <button
           onClick={() => setShowFeeExplainer(!showFeeExplainer)}
           className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"

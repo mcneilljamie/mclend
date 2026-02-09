@@ -13,12 +13,16 @@ export function useReserveData(asset: `0x${string}`) {
     },
   });
 
-  // getReserveData returns a struct with liquidityRate in Ray units (1e27)
-  const liquidityRate = data?.[3] as bigint | undefined;
+  // getReserveData returns a struct:
+  // [0] configuration, [1] liquidityIndex, [2] currentLiquidityRate (supply APY),
+  // [3] variableBorrowIndex, [4] currentVariableBorrowRate (borrow APY), [5] stableBorrowRate, ...
+  const liquidityRate = data?.[2] as bigint | undefined; // Supply/Deposit APY
+  const variableBorrowRate = data?.[4] as bigint | undefined; // Variable Borrow APY
 
   return {
     data,
     liquidityRate,
+    variableBorrowRate,
     isLoading,
     error,
   };
