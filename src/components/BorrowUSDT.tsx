@@ -6,6 +6,7 @@ import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI, IERC20_ABI } from
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
+import { useAssetPrice } from '../hooks/useAssetPrice';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
 import { validateNumericInput, sanitizeNumericInput } from '../utils/validation';
 import { toastManager } from './Toast';
@@ -35,6 +36,7 @@ export function BorrowUSDT() {
   });
 
   const { variableBorrowRate } = useReserveData(ADDRESSES.USDT as `0x${string}`);
+  const { data: wethPrice } = useAssetPrice(ADDRESSES.WETH as `0x${string}`);
 
   const netAmountBigInt = useMemo(() => {
     if (!netAmount) return 0n;
@@ -111,12 +113,16 @@ export function BorrowUSDT() {
       return;
     }
 
+    if (!wethPrice) {
+      toastManager.show('error', 'Unable to fetch ETH price. Please try again.');
+      return;
+    }
+
     const toastId = toastManager.show('loading', 'Borrowing USDT with atomic fee swap and burn...');
     try {
-      const ETH_USD_PRICE = 3000n;
       const USDT_TO_ETH_DECIMALS_ADJUSTMENT = 10n ** 12n;
 
-      const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / ETH_USD_PRICE;
+      const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / wethPrice;
       const minEthOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.USDT_TO_ETH_BPS)) / BPS_DENOMINATOR;
 
       const minMclendOut = (ethEstimate * (BPS_DENOMINATOR - SLIPPAGE.ETH_TO_MCLEND_BPS)) / BPS_DENOMINATOR;
@@ -307,7 +313,7 @@ export function BorrowUSDT() {
             <div className="flex items-start gap-2 bg-blue-950/30 border border-blue-500/30 rounded-lg p-3">
               <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-blue-300">
-                Slippage protection: 3% for USDT→ETH, 50% for ETH→MCLEND. Price estimates based on $3,000/ETH. Transaction will revert if market rates are worse than these limits.
+                Slippage protection: 3% for USDT→ETH, 50% for ETH→MCLEND. Prices sourced from Aave Oracle{wethPrice ? ` (Current ETH: $${(Number(wethPrice) / 1e8).toFixed(2)})` : ''}. Transaction will revert if market rates are worse than slippage limits.
               </p>
             </div>
             <button

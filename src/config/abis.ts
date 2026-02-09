@@ -262,3 +262,13 @@ export const MCLEND_ORIGINATION_GATE_ABI = [
     type: 'event',
   },
 ] as const;
+
+export const AAVE_ORACLE_ABI = [
+  {
+    inputs: [{ internalType: 'address', name: 'asset', type: 'address' }],
+    name: 'getAssetPrice',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;

@@ -6,6 +6,7 @@ import { IERC20_ABI, AAVE_POOL_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useDebtTokenBalance } from '../hooks/useDebtToken';
 import { useTokenAllowance, useTokenBalance } from '../hooks/useTokenBalance';
+import { useAssetPrice } from '../hooks/useAssetPrice';
 import { formatHealthFactor, formatLTV, formatUSD, formatUSDT, formatWBTC } from '../utils/format';
 import { validateNumericInput, validateWithdrawalAmount, sanitizeNumericInput } from '../utils/validation';
 import { toastManager } from './Toast';
@@ -22,6 +23,7 @@ export function ManagePosition() {
   const { data: debtBalance, refetch: refetchDebtBalance } = useDebtTokenBalance(address);
   const { data: usdtBalance } = useTokenBalance(ADDRESSES.USDT as `0x${string}`, address);
   const { data: wbtcBalance } = useTokenBalance(ADDRESSES.WBTC as `0x${string}`, address);
+  const { data: wbtcPrice } = useAssetPrice(ADDRESSES.WBTC as `0x${string}`);
   const { data: usdtAllowance, refetch: refetchAllowance } = useTokenAllowance(
     ADDRESSES.USDT as `0x${string}`,
     address,
@@ -121,6 +123,11 @@ export function ManagePosition() {
       return;
     }
 
+    if (!wbtcPrice) {
+      toastManager.show('error', 'Unable to fetch WBTC price. Please try again.');
+      return;
+    }
+
     const toastId = toastManager.show('loading', 'Validating withdrawal...');
     try {
       const parsedAmount = parseUnits(withdrawAmount, TOKEN_DECIMALS.WBTC);
@@ -130,11 +137,7 @@ export function ManagePosition() {
         return;
       }
 
-      const wbtcPriceInUSD = totalCollateral > 0n && wbtcBalance !== undefined && wbtcBalance > 0n
-        ? totalCollateral / wbtcBalance
-        : 95000n * (10n ** 8n);
-
-      const withdrawalValueUSD = (parsedAmount * wbtcPriceInUSD) / (10n ** 8n);
+      const withdrawalValueUSD = (parsedAmount * wbtcPrice) / (10n ** 8n);
 
       const withdrawalValidation = validateWithdrawalAmount(
         withdrawalValueUSD,
