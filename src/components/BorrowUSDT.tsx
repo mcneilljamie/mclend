@@ -99,11 +99,10 @@ export function BorrowUSDT() {
           </label>
           <div className="relative">
             <input
-              type="number"
+              type="text"
               value={netAmount}
               onChange={(e) => setNetAmount(e.target.value)}
               placeholder="0.0"
-              step="0.01"
               className="w-full px-4 py-3 bg-black/40 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-500"
             />
             <button

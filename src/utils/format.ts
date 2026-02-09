@@ -2,19 +2,29 @@ import { formatUnits, parseUnits } from 'viem';
 import { TOKEN_DECIMALS } from '../config/contracts';
 
 export function formatWBTC(value: bigint): string {
-  return formatUnits(value, TOKEN_DECIMALS.WBTC);
+  const formatted = formatUnits(value, TOKEN_DECIMALS.WBTC);
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 8,
+  }).format(Number(formatted));
 }
 
 export function formatUSDT(value: bigint): string {
-  return formatUnits(value, TOKEN_DECIMALS.USDT);
+  const formatted = formatUnits(value, TOKEN_DECIMALS.USDT);
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(Number(formatted));
 }
 
 export function parseWBTC(value: string): bigint {
-  return parseUnits(value, TOKEN_DECIMALS.WBTC);
+  const cleanValue = value.replace(/,/g, '');
+  return parseUnits(cleanValue, TOKEN_DECIMALS.WBTC);
 }
 
 export function parseUSDT(value: string): bigint {
-  return parseUnits(value, TOKEN_DECIMALS.USDT);
+  const cleanValue = value.replace(/,/g, '');
+  return parseUnits(cleanValue, TOKEN_DECIMALS.USDT);
 }
 
 export function formatHealthFactor(value: bigint): string {
