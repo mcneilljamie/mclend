@@ -203,7 +203,7 @@ export function BorrowUSDT() {
               <span className="font-semibold text-white">{formatUSDT(netAmountBigInt)} USDT</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-purple-300">McLend Fee (1%):</span>
+              <span className="text-purple-300">McLend Fee (0.4%):</span>
               <span className="font-semibold text-white">{formatUSDT(feeAmount)} USDT</span>
             </div>
             <div className="flex justify-between text-sm border-t border-purple-500/30 pt-2">

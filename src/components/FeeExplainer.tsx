@@ -9,15 +9,15 @@ interface FeeExplainerProps {
 
 export function FeeExplainer({ netAmount, feeAmount, grossAmount, compact = false }: FeeExplainerProps) {
   const exampleNet = netAmount || '10,000';
-  const exampleFee = feeAmount || '100';
-  const exampleGross = grossAmount || '10,100';
+  const exampleFee = feeAmount || '40';
+  const exampleGross = grossAmount || '10,040';
 
   if (compact) {
     return (
       <div className="bg-blue-950/30 border border-blue-500/30 rounded-lg p-4">
         <h4 className="text-sm font-semibold text-blue-300 mb-3 flex items-center gap-2">
           <Flame className="w-4 h-4" />
-          How the 1% Fee Works
+          How the 0.4% Fee Works
         </h4>
         <div className="space-y-2 text-sm text-gray-300">
           <p>
@@ -48,7 +48,7 @@ export function FeeExplainer({ netAmount, feeAmount, grossAmount, compact = fals
         </div>
         <h2 className="text-3xl font-bold text-white mb-3">How the Atomic Fee Works</h2>
         <p className="text-gray-400 max-w-2xl mx-auto">
-          Every borrow includes a transparent 1% origination fee that's automatically collected, swapped, and burned in a single transaction.
+          Every borrow includes a transparent 0.4% origination fee that's automatically collected, swapped, and burned in a single transaction.
         </p>
       </div>
 
@@ -60,12 +60,12 @@ export function FeeExplainer({ netAmount, feeAmount, grossAmount, compact = fals
             <span className="text-white font-semibold">$10,000 USDT</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-300">McLend Fee (1%):</span>
-            <span className="text-orange-400 font-semibold">+$100 USDT</span>
+            <span className="text-gray-300">McLend Fee (0.4%):</span>
+            <span className="text-orange-400 font-semibold">+$40 USDT</span>
           </div>
           <div className="border-t border-purple-500/30 pt-3 flex justify-between items-center">
             <span className="text-purple-300 font-semibold">Total borrowed from Aave:</span>
-            <span className="text-white font-bold">$10,100 USDT</span>
+            <span className="text-white font-bold">$10,040 USDT</span>
           </div>
         </div>
       </div>

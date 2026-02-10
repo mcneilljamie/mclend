@@ -49,7 +49,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 <TrendingUp className="w-8 h-8 text-purple-400" />
               </div>
               <h3 className="text-white font-semibold mb-2">Low Borrow Rate</h3>
-              <p className="text-gray-400 text-sm">Currently {isLoading ? 'loading...' : `${borrowAPY}%`} with transparent 1% origination fee</p>
+              <p className="text-gray-400 text-sm">Currently {isLoading ? 'loading...' : `${borrowAPY}%`} with transparent 0.4% origination fee</p>
             </div>
             <div className="text-center">
               <div className="bg-purple-500/10 rounded-xl p-4 mb-4 inline-block">
@@ -167,7 +167,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 <div>
                   <h4 className="text-white font-semibold mb-1">Transparent Fees</h4>
                   <p className="text-gray-400 text-sm">
-                    Simple 1% origination fee. No hidden charges or surprise costs.
+                    Simple 0.4% origination fee. No hidden charges or surprise costs.
                   </p>
                 </div>
               </div>
@@ -229,7 +229,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 <div className="flex justify-center mb-2">
                   <DollarSign className="w-8 h-8 text-purple-400" />
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">1% Fee</div>
+                <div className="text-2xl font-bold text-white mb-1">0.4% Fee</div>
                 <p className="text-sm text-gray-400">Simple origination cost</p>
               </div>
               <div>

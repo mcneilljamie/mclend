@@ -52,10 +52,10 @@ interface IWETH {
 
 /**
  * @title McLend Origination Gate
- * @notice Atomic borrow with 1% origination fee that is automatically swapped and burned
+ * @notice Atomic borrow with 0.4% origination fee that is automatically swapped and burned
  * @dev This contract:
  *      1. Borrows USDT from Aave V3 on behalf of user (requires credit delegation)
- *      2. Collects 1% fee from borrowed amount
+ *      2. Collects 0.4% fee from borrowed amount
  *      3. Swaps fee: USDT → WETH (Uniswap V3) → ETH (unwrap) → MCLEND (McFun)
  *      4. Burns MCLEND by sending to dead address
  *      All steps are atomic - any failure reverts the entire transaction
@@ -78,7 +78,7 @@ contract McLendOriginationGate is ReentrancyGuard {
     IVariableDebtToken public immutable variableDebtUSDT;
     address public constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
-    uint256 public constant ORIGINATION_FEE_BPS = 100;
+    uint256 public constant ORIGINATION_FEE_BPS = 40;
     uint256 public constant BPS_DENOMINATOR = 10000;
     uint24 public constant UNISWAP_POOL_FEE = 500;
 
@@ -315,7 +315,7 @@ contract McLendOriginationGate is ReentrancyGuard {
     /**
      * @notice Calculate the total amount that must be delegated for a given net borrow
      * @param netAmount Net amount user wants to receive
-     * @return Total amount including 1% fee that must be delegated
+     * @return Total amount including 0.4% fee that must be delegated
      */
     function getRequiredDelegation(uint256 netAmount) external pure returns (uint256) {
         uint256 feeAmount = (netAmount * ORIGINATION_FEE_BPS) / BPS_DENOMINATOR;
