@@ -59,16 +59,6 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
               <p className="text-gray-400 text-sm">Built on Aave V3, securing billions in DeFi assets</p>
             </div>
           </div>
-
-          <div className="flex justify-center pt-4">
-            <button
-              onClick={onLaunchApp}
-              className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white rounded-lg transition-all font-semibold text-lg shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50"
-            >
-              Launch App
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
         </div>
 
         <div className="space-y-8 mb-10">
