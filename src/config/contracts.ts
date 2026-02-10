@@ -27,7 +27,10 @@ export const HEALTH_FACTOR_THRESHOLDS = {
   LIQUIDATION: 1.0,
 } as const;
 
-export const MCLEND_FEE_BPS = 100;
+// CRITICAL: Must match on-chain ORIGINATION_FEE_BPS in McLendOriginationGate.sol
+// Contract value: 40 bps = 0.4%
+// DO NOT change this without redeploying the contract
+export const MCLEND_FEE_BPS = 40;
 export const BPS_DENOMINATOR = 10000;
 
 export const SLIPPAGE = {

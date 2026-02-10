@@ -17,7 +17,7 @@ Without slippage protection (setting `minEthOut = 0` and `minMclendOut = 0`), us
 
 **Example Risk Scenario**:
 - User borrows 10,000 USDT
-- Fee is 100 USDT (1%)
+- Fee is 40 USDT (0.4%)
 - Without protection, a sandwicher could manipulate the pool to get:
   - 100 USDT → 0.01 ETH instead of 0.033 ETH (70% loss!)
   - Then reverse their manipulation after
@@ -164,7 +164,7 @@ Users see a blue info banner:
 - USDT→ETH swap gets ≥97% of estimated rate
 - ETH→MCLEND swap gets ≥50% of estimated tokens
 - MCLEND burned successfully
-- User receives their USDT minus 1% fee
+- User receives their USDT minus 0.4% fee
 
 **Failure Case** (Slippage Exceeded):
 - Transaction reverts with error
@@ -294,7 +294,7 @@ Before deploying to production with large volumes:
 ### Scenario 1: Normal Market Conditions
 
 **User borrows**: 10,000 USDT
-**Fee**: 100 USDT (1%)
+**Fee**: 40 USDT (0.4%)
 
 **Estimated rates**:
 - USDT→ETH: 100 USDT at $3,000/ETH = 0.0333 ETH
@@ -308,7 +308,7 @@ Before deploying to production with large volumes:
 ### Scenario 2: Volatile Market
 
 **User borrows**: 10,000 USDT
-**Fee**: 100 USDT (1%)
+**Fee**: 40 USDT (0.4%)
 
 **Estimated rates**:
 - minEthOut: 0.0323 ETH (3% slippage from $3,000)
@@ -322,7 +322,7 @@ Before deploying to production with large volumes:
 ### Scenario 3: MEV Attack Attempt
 
 **User borrows**: 100,000 USDT
-**Fee**: 1,000 USDT (1%)
+**Fee**: 400 USDT (0.4%)
 
 **Attacker strategy**:
 - Front-run: Buy ETH to increase price

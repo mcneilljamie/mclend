@@ -122,7 +122,11 @@ export function BorrowUSDT() {
       const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / wethPrice;
       const minEthOut = (ethEstimate * (BigInt(BPS_DENOMINATOR) - BigInt(SLIPPAGE.USDT_TO_ETH_BPS))) / BigInt(BPS_DENOMINATOR);
 
-      const minMclendOut = (ethEstimate * (BigInt(BPS_DENOMINATOR) - BigInt(SLIPPAGE.ETH_TO_MCLEND_BPS))) / BigInt(BPS_DENOMINATOR);
+      // IMPORTANT: minMclendOut set to 0 to disable token-side slippage protection.
+      // The McFun AMM does not expose a quote/view function for accurate price estimation.
+      // ETH-side slippage (minEthOut) remains active to protect USDT→WETH swap.
+      // TODO: Add proper MCLEND amount estimation when McFun provides quote function
+      const minMclendOut = 0n;
 
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
 

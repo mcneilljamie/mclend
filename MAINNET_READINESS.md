@@ -12,7 +12,7 @@
 
 The McLend Origination Gate implements an atomic borrow-and-burn mechanism:
 1. User borrows USDT from Aave V3 (requires credit delegation)
-2. 1% origination fee is collected in USDT
+2. 0.4% origination fee is collected in USDT
 3. Fee is swapped atomically: USDT → WETH → ETH → MCLEND
 4. MCLEND tokens are burned by sending to dead address
 5. All steps happen in a single transaction (atomic)
@@ -144,7 +144,7 @@ The McLend Origination Gate implements an atomic borrow-and-burn mechanism:
 
 ### Parameters
 
-- Origination Fee: **1% (100 BPS)** - Hardcoded, immutable
+- Origination Fee: **0.4% (40 BPS)** - Hardcoded, immutable
 - BPS Denominator: **10000** - Standard basis points
 - Uniswap Pool Fee Tier: **500 (0.05%)** - Standard USDT/WETH pool
 - Dead Address: `0x000000000000000000000000000000000000dEaD`

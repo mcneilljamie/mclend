@@ -2,7 +2,7 @@
 
 ## Overview
 
-McLendOriginationGate is an **immutable, permissionless** lending origination wrapper that atomically captures a 1% origination fee, swaps it through two DEXs, and burns the acquired tokens. The entire process happens in a single transaction with no manual intervention required.
+McLendOriginationGate is an **immutable, permissionless** lending origination wrapper that atomically captures a 0.4% origination fee, swaps it through two DEXs, and burns the acquired tokens. The entire process happens in a single transaction with no manual intervention required.
 
 ## Core Principles
 
@@ -10,12 +10,12 @@ McLendOriginationGate is an **immutable, permissionless** lending origination wr
 - **No admin functions**: Contract has zero governance or admin capabilities
 - **No upgradeability**: Once deployed, the contract cannot be modified
 - **Hardcoded addresses**: All protocol addresses are set in constructor as immutable variables
-- **Fixed fee**: 1% origination fee is a constant (100 BPS)
+- **Fixed fee**: 0.4% origination fee is a constant (40 BPS)
 
 ### Atomicity
 Every borrow transaction executes the complete flow atomically:
-1. Borrow USDT from Aave V3 (gross amount = net amount + 1% fee)
-2. Capture 1% fee in USDT
+1. Borrow USDT from Aave V3 (gross amount = net amount + 0.4% fee)
+2. Capture 0.4% fee in USDT
 3. Swap USDT → ETH on Uniswap V3
 4. Swap ETH → MCLEND on McFun
 5. Burn MCLEND to dead address
@@ -33,7 +33,7 @@ If ANY step fails, the ENTIRE transaction reverts. No partial execution is possi
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      Step 1: Calculate Amounts                       │
-│  • feeAmount = netAmount × 100 / 10000 (1%)                         │
+│  • feeAmount = netAmount × 40 / 10000 (0.4%)                          │
 │  • grossAmount = netAmount + feeAmount                              │
 └────────────────────────────────┬────────────────────────────────────┘
                                  │
@@ -49,7 +49,7 @@ If ANY step fails, the ENTIRE transaction reverts. No partial execution is possi
 ┌─────────────────────────────────────────────────────────────────────┐
 │                   Step 3: Capture Fee in Contract                    │
 │  • usdt.transferFrom(user, contract, feeAmount)                    │
-│  • Contract now holds 1% fee in USDT                                │
+│  • Contract now holds 0.4% fee in USDT                                │
 │  • User keeps netAmount of USDT                                     │
 └────────────────────────────────┬────────────────────────────────────┘
                                  │
@@ -114,7 +114,7 @@ If ANY step fails, the ENTIRE transaction reverts. No partial execution is possi
 - `mclend`: MCLEND token contract
 
 **Constants:**
-- `ORIGINATION_FEE_BPS = 100` (1%)
+- `ORIGINATION_FEE_BPS = 40` (0.4%)
 - `BPS_DENOMINATOR = 10000`
 - `UNISWAP_POOL_FEE = 500` (0.05%)
 - `DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD`
@@ -292,7 +292,7 @@ mcLendOriginationGate.borrowWithFee(netAmount, minEthOut, minMclendOut, deadline
 ### Transaction Parameters
 ```typescript
 const netAmount = parseUnits("1000", 6); // 1000 USDT net
-const feeAmount = (netAmount * 100n) / 10000n; // 10 USDT fee
+const feeAmount = (netAmount * 40n) / 10000n; // 4 USDT fee
 const minEthOut = calculateMinEthOut(feeAmount, 0.03); // 3% slippage
 const minMclendOut = calculateMinMclendOut(minEthOut, 0.50); // 50% slippage
 const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200); // 20 minutes

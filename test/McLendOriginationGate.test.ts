@@ -62,7 +62,7 @@ describe("McLendOriginationGate", function () {
     });
 
     it("Should set the correct origination fee", async function () {
-      expect(await mcLendOriginationGate.ORIGINATION_FEE_BPS()).to.equal(100);
+      expect(await mcLendOriginationGate.ORIGINATION_FEE_BPS()).to.equal(40);
     });
 
     it("Should set the correct dead address", async function () {
@@ -212,16 +212,16 @@ describe("McLendOriginationGate", function () {
   });
 
   describe("Fee Calculation", function () {
-    it("Should calculate 1% fee correctly", async function () {
+    it("Should calculate 0.4% fee correctly", async function () {
       const feeBps = await mcLendOriginationGate.ORIGINATION_FEE_BPS();
-      expect(feeBps).to.equal(100);
+      expect(feeBps).to.equal(40);
 
       const netAmount = ethers.parseUnits("1000", 6);
-      const expectedFee = (netAmount * BigInt(100)) / BigInt(10000);
+      const expectedFee = (netAmount * BigInt(40)) / BigInt(10000);
       const expectedGross = netAmount + expectedFee;
 
-      expect(expectedFee).to.equal(ethers.parseUnits("10", 6));
-      expect(expectedGross).to.equal(ethers.parseUnits("1010", 6));
+      expect(expectedFee).to.equal(ethers.parseUnits("4", 6));
+      expect(expectedGross).to.equal(ethers.parseUnits("1004", 6));
     });
   });
 

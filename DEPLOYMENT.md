@@ -71,7 +71,7 @@ Configuration:
   WETH: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
   MCLEND: 0xe03e4d90a46f62ac405708ba5036f292d5e0edc8
   Variable Debt USDT: 0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8
-  Origination Fee: 1% (100 BPS)
+  Origination Fee: 0.4% (40 BPS)
 =====================================
 
 Pre-deployment verification...

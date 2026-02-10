@@ -19,7 +19,7 @@ async function main() {
   console.log("  WETH:", WETH);
   console.log("  MCLEND:", MCLEND);
   console.log("  Variable Debt USDT:", VARIABLE_DEBT_USDT);
-  console.log("  Origination Fee: 1% (100 BPS)");
+  console.log("  Origination Fee: 0.4% (40 BPS)");
   console.log("=====================================\n");
 
   console.log("Pre-deployment verification...");
@@ -54,18 +54,19 @@ async function main() {
 
   console.log("\n=====================================");
   console.log("Transaction Flow:");
-  console.log("1. User borrows netAmount + 1% fee from Aave");
-  console.log("2. Fee (1% in USDT) is captured");
-  console.log("3. USDT → ETH swap on Uniswap V3 (max 3% slippage)");
-  console.log("4. ETH → MCLEND swap on McFun (max 50% slippage)");
-  console.log("5. MCLEND tokens burned to dead address");
+  console.log("1. User borrows netAmount + 0.4% fee from Aave");
+  console.log("2. Fee (0.4% in USDT) is captured");
+  console.log("3. USDT → WETH swap on Uniswap V3 (with 3% slippage protection)");
+  console.log("4. WETH → ETH unwrap");
+  console.log("5. ETH → MCLEND swap on McFun");
+  console.log("6. MCLEND tokens burned to dead address");
   console.log("=====================================\n");
 
   console.log("⚠️  IMPORTANT: Contract is immutable");
   console.log("   - No admin functions");
   console.log("   - No upgradeability");
   console.log("   - All addresses are hardcoded");
-  console.log("   - 1% origination fee is fixed\n");
+  console.log("   - 0.4% origination fee is fixed\n");
 
   console.log("To verify on Etherscan, run:");
   console.log(

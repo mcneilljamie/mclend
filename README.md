@@ -1,13 +1,13 @@
 # McLend - WBTC Collateral, USDT Borrowing on Aave V3
 
-McLend is a production-ready decentralized lending application built on Aave V3 Ethereum mainnet. Users can deposit WBTC as collateral and borrow USDT with a 1% origination fee charged by the McLend protocol.
+McLend is a production-ready decentralized lending application built on Aave V3 Ethereum mainnet. Users can deposit WBTC as collateral and borrow USDT with a 0.4% origination fee charged by the McLend protocol.
 
 ## Features
 
 - **Non-Custodial**: Your WBTC collateral stays in Aave's battle-tested protocol
 - **Credit Delegation**: Secure borrowing through Aave's credit delegation mechanism
 - **Health Factor Monitoring**: Real-time warnings to prevent liquidation
-- **1% Origination Fee**: Transparent fee structure on borrowing
+- **0.4% Origination Fee**: Transparent fee structure on borrowing
 - **WBTC Only**: Simplified collateral management with WBTC
 - **USDT Only**: Focus on stablecoin borrowing
 
@@ -17,8 +17,8 @@ McLend is a production-ready decentralized lending application built on Aave V3 
 
 The `McLendOriginationGate.sol` contract is an immutable, permissionless lending origination wrapper that atomically:
 1. Borrows USDT from Aave V3 on behalf of user
-2. Captures 1% origination fee
-3. Swaps fee through Uniswap V3 (USDT→ETH) and McFun (ETH→MCLEND)
+2. Captures 0.4% origination fee
+3. Swaps fee through Uniswap V3 (USDT→WETH→ETH) and McFun (ETH→MCLEND)
 4. Burns MCLEND tokens to dead address
 
 **Key Features:**
@@ -120,14 +120,14 @@ npm run dev
 
 ### Step 3: Borrow USDT
 1. Enter desired net USDT borrow amount
-2. System calculates: gross = net + 1% fee, slippage parameters
+2. System calculates: gross = net + 0.4% fee, slippage parameters
 3. Approve USDT spending for fee amount (happens after borrow)
 4. Confirm borrow transaction through McLendOriginationGate
 5. **Atomic execution:**
    - Contract borrows gross amount from Aave (debt in your name)
    - You receive net USDT amount in your wallet
    - Contract pulls fee from you in USDT
-   - Contract swaps USDT→ETH on Uniswap
+   - Contract swaps USDT→WETH on Uniswap, unwraps to ETH
    - Contract swaps ETH→MCLEND on McFun
    - Contract burns MCLEND to dead address
 6. All steps succeed or entire transaction reverts
