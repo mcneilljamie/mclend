@@ -41,11 +41,13 @@ export function useReserveData(asset: `0x${string}`) {
 export function formatAPY(rateInRay: bigint | undefined): string {
   if (!rateInRay) return '0.00';
 
-  // Convert from Ray (1e27) to percentage
-  // APY = (1 + rate/secondsPerYear)^secondsPerYear - 1
-  // For display purposes, we approximate: APY ≈ rate * 100
-  const RAY = 10n ** 27n;
-  const apy = Number((rateInRay * 10000n) / RAY) / 100;
+  // Aave stores rates as APR per second in Ray format (1e27)
+  // To convert to APY, we need to compound: APY = (1 + ratePerSecond)^secondsPerYear - 1
+  const RAY = 1e27;
+  const SECONDS_PER_YEAR = 31536000;
+
+  const ratePerSecond = Number(rateInRay) / RAY;
+  const apy = (Math.pow(1 + ratePerSecond, SECONDS_PER_YEAR) - 1) * 100;
 
   return apy.toFixed(2);
 }
