@@ -52,6 +52,24 @@ export function FeeExplainer({ netAmount, feeAmount, grossAmount, compact = fals
         </p>
       </div>
 
+      <div className="bg-gradient-to-r from-purple-950/50 to-blue-950/50 border border-purple-500/30 rounded-xl p-6 mb-8">
+        <h3 className="text-lg font-semibold text-white mb-4 text-center">Example: Borrowing $10,000</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-300">You want to receive:</span>
+            <span className="text-white font-semibold">$10,000 USDT</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-300">McLend Fee (1%):</span>
+            <span className="text-orange-400 font-semibold">+$100 USDT</span>
+          </div>
+          <div className="border-t border-purple-500/30 pt-3 flex justify-between items-center">
+            <span className="text-purple-300 font-semibold">Total borrowed from Aave:</span>
+            <span className="text-white font-bold">$10,100 USDT</span>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-purple-950/50 border border-purple-500/30 rounded-xl p-6 relative">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
@@ -103,24 +121,6 @@ export function FeeExplainer({ netAmount, feeAmount, grossAmount, compact = fals
           <p className="text-gray-400 text-sm text-center">
             MCLEND tokens permanently burned, reducing supply
           </p>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-purple-950/50 to-blue-950/50 border border-purple-500/30 rounded-xl p-6 mb-6">
-        <h3 className="text-lg font-semibold text-white mb-4 text-center">Example: Borrowing $10,000</h3>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-300">You want to receive:</span>
-            <span className="text-white font-semibold">$10,000 USDT</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-300">McLend Fee (1%):</span>
-            <span className="text-orange-400 font-semibold">+$100 USDT</span>
-          </div>
-          <div className="border-t border-purple-500/30 pt-3 flex justify-between items-center">
-            <span className="text-purple-300 font-semibold">Total borrowed from Aave:</span>
-            <span className="text-white font-bold">$10,100 USDT</span>
-          </div>
         </div>
       </div>
 
