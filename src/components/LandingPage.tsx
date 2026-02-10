@@ -26,7 +26,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </p>
 
           <div className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl backdrop-blur-sm">
-            <div className="text-left">
+            <div className="text-center">
               <div className="text-sm text-green-300 font-medium">Current Borrow Rate</div>
               <div className="text-3xl font-bold text-white">
                 {isLoading ? '...' : `${borrowAPY}%`}
