@@ -28,10 +28,9 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           <div className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl backdrop-blur-sm">
             <Percent className="w-6 h-6 text-green-400" />
             <div className="text-left">
-              <div className="text-sm text-green-300 font-medium">Current Borrow Rate</div>
+              <div className="text-sm text-green-300 font-medium">Current borrow rate</div>
               <div className="text-3xl font-bold text-white">
                 {isLoading ? '...' : `${borrowAPY}%`}
-                <span className="text-lg text-gray-400 ml-2">APY</span>
               </div>
             </div>
           </div>
@@ -51,7 +50,7 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 <TrendingUp className="w-8 h-8 text-purple-400" />
               </div>
               <h3 className="text-white font-semibold mb-2">Low Borrow Rate</h3>
-              <p className="text-gray-400 text-sm">Currently {isLoading ? 'loading...' : `${borrowAPY}% APY`} with transparent 1% origination fee</p>
+              <p className="text-gray-400 text-sm">Currently {isLoading ? 'loading...' : `${borrowAPY}%`} with transparent 1% origination fee</p>
             </div>
             <div className="text-center">
               <div className="bg-purple-500/10 rounded-xl p-4 mb-4 inline-block">
