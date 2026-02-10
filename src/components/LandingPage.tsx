@@ -1,11 +1,16 @@
-import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle, Percent } from 'lucide-react';
 import { FeeExplainer } from './FeeExplainer';
+import { useReserveData, formatAPY } from '../hooks/useReserveData';
+import { ADDRESSES } from '../config/contracts';
 
 interface LandingPageProps {
   onLaunchApp: () => void;
 }
 
 export function LandingPage({ onLaunchApp }: LandingPageProps) {
+  const { variableBorrowRate, isLoading } = useReserveData(ADDRESSES.USDT as `0x${string}`);
+  const borrowAPY = formatAPY(variableBorrowRate);
+
   return (
     <div className="flex flex-col items-center justify-center py-8">
       <div className="max-w-4xl w-full">
@@ -16,9 +21,20 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
             Borrow Against Bitcoin
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-6">
             Access instant liquidity without selling your Bitcoin. Institutional-grade lending powered by Aave V3.
           </p>
+
+          <div className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl backdrop-blur-sm">
+            <Percent className="w-6 h-6 text-green-400" />
+            <div className="text-left">
+              <div className="text-sm text-green-300 font-medium">Current Borrow Rate</div>
+              <div className="text-3xl font-bold text-white">
+                {isLoading ? '...' : `${borrowAPY}%`}
+                <span className="text-lg text-gray-400 ml-2">APY</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 shadow-2xl shadow-purple-500/10 mb-10">
@@ -34,8 +50,8 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
               <div className="bg-purple-500/10 rounded-xl p-4 mb-4 inline-block">
                 <TrendingUp className="w-8 h-8 text-purple-400" />
               </div>
-              <h3 className="text-white font-semibold mb-2">Competitive Rates</h3>
-              <p className="text-gray-400 text-sm">Market-leading APY with transparent 1% origination fee</p>
+              <h3 className="text-white font-semibold mb-2">Low Borrow Rate</h3>
+              <p className="text-gray-400 text-sm">Currently {isLoading ? 'loading...' : `${borrowAPY}% APY`} with transparent 1% origination fee</p>
             </div>
             <div className="text-center">
               <div className="bg-purple-500/10 rounded-xl p-4 mb-4 inline-block">
