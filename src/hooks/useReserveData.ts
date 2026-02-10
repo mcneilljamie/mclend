@@ -9,7 +9,7 @@ export function useReserveData(asset: `0x${string}`) {
     functionName: 'getReserveData',
     args: [asset],
     query: {
-      refetchInterval: 30000,
+      refetchInterval: 10000,
       enabled: true,
     },
   });
@@ -41,13 +41,12 @@ export function useReserveData(asset: `0x${string}`) {
 export function formatAPY(rateInRay: bigint | undefined): string {
   if (!rateInRay) return '0.00';
 
-  // Aave stores rates as APR per second in Ray format (1e27)
-  // To convert to APY, we need to compound: APY = (1 + ratePerSecond)^secondsPerYear - 1
-  const RAY = 1e27;
-  const SECONDS_PER_YEAR = 31536000;
+  // Aave stores rates in Ray format (1e27)
+  // Convert to percentage with higher precision before rounding
+  const RAY = 10n ** 27n;
 
-  const ratePerSecond = Number(rateInRay) / RAY;
-  const apy = (Math.pow(1 + ratePerSecond, SECONDS_PER_YEAR) - 1) * 100;
+  // Use 100000 multiplier for more precision (5 decimal places) before rounding to 2
+  const percentage = Number((rateInRay * 100000n) / RAY) / 1000;
 
-  return apy.toFixed(2);
+  return percentage.toFixed(2);
 }
