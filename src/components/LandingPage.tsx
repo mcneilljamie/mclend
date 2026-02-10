@@ -1,4 +1,4 @@
-import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle, Percent } from 'lucide-react';
+import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { FeeExplainer } from './FeeExplainer';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { ADDRESSES } from '../config/contracts';
@@ -26,9 +26,8 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </p>
 
           <div className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl backdrop-blur-sm">
-            <Percent className="w-6 h-6 text-green-400" />
             <div className="text-left">
-              <div className="text-sm text-green-300 font-medium">Current borrow rate</div>
+              <div className="text-sm text-green-300 font-medium">Current Borrow Rate</div>
               <div className="text-3xl font-bold text-white">
                 {isLoading ? '...' : `${borrowAPY}%`}
               </div>
