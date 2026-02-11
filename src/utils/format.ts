@@ -45,13 +45,13 @@ export function formatAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-export function formatUSD(value: bigint, decimals: number = 8): string {
+export function formatUSD(value: bigint, decimals: number = 8, displayDecimals: number = 2): string {
   const formatted = formatUnits(value, decimals);
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: displayDecimals,
+    maximumFractionDigits: displayDecimals,
   }).format(Number(formatted));
 }
 

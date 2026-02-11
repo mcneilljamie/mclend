@@ -342,7 +342,7 @@ export function ManagePosition() {
             <TrendingUp className="w-4 h-4" />
             Total Collateral
           </p>
-          <p className="text-2xl font-bold text-white">{formatUSD(totalCollateral, 8)}</p>
+          <p className="text-2xl font-bold text-white">{formatUSD(totalCollateral, 8, 5)}</p>
         </div>
 
         <div className="bg-red-950/30 rounded-lg p-4 border border-red-500/30">
@@ -350,7 +350,7 @@ export function ManagePosition() {
             <TrendingDown className="w-4 h-4" />
             Total Debt
           </p>
-          <p className="text-2xl font-bold text-white">{formatUSD(totalDebt, 8)}</p>
+          <p className="text-2xl font-bold text-white">{formatUSD(totalDebt, 8, 5)}</p>
         </div>
 
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
