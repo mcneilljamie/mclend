@@ -4,7 +4,6 @@ import { DepositWBTC } from './DepositWBTC';
 import { BorrowUSDT } from './BorrowUSDT';
 import { ManagePosition } from './ManagePosition';
 import { HealthWarnings } from './HealthWarnings';
-import { TransactionHistory } from './TransactionHistory';
 import { Wallet } from 'lucide-react';
 
 export function AppPage() {
@@ -41,8 +40,6 @@ export function AppPage() {
       </div>
 
       <ManagePosition />
-
-      <TransactionHistory />
     </div>
   );
 }
