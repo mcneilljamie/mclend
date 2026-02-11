@@ -9,13 +9,18 @@ import { useTokenAllowance, useTokenBalance } from '../hooks/useTokenBalance';
 import { useAssetPrice } from '../hooks/useAssetPrice';
 import { formatHealthFactor, formatLTV, formatUSD, formatUSDT, formatWBTC } from '../utils/format';
 import { validateNumericInput, validateWithdrawalAmount, sanitizeNumericInput } from '../utils/validation';
+import { parseTransactionError } from '../utils/errorHandling';
 import { toastManager } from './Toast';
+import { SuccessModal } from './SuccessModal';
 import { Loader, TrendingUp, TrendingDown } from 'lucide-react';
 
 export function ManagePosition() {
   const { address } = useAccount();
   const [repayAmount, setRepayAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successTxHash, setSuccessTxHash] = useState('');
+  const [successType, setSuccessType] = useState<'approval' | 'repay' | 'withdraw'>('repay');
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
@@ -63,10 +68,14 @@ export function ManagePosition() {
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
 
-      toastManager.update(toastId, 'success', 'USDT approved successfully!', approveHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('approval');
+      setSuccessTxHash(approveHash as string);
+      setSuccessModalOpen(true);
       await refetchAllowance();
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -103,14 +112,18 @@ export function ManagePosition() {
         args: [ADDRESSES.USDT as `0x${string}`, amountToRepay, BigInt(2), address],
       });
 
-      toastManager.update(toastId, 'success', 'Debt repaid successfully!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('repay');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setRepayAmount('');
       setTimeout(() => {
         refetchDebtBalance();
         refetchAccountData();
       }, 2000);
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to repay debt');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -161,13 +174,17 @@ export function ManagePosition() {
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address],
       });
 
-      toastManager.update(toastId, 'success', 'WBTC withdrawn successfully!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('withdraw');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setWithdrawAmount('');
       setTimeout(() => {
         refetchAccountData();
       }, 2000);
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to withdraw WBTC');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -234,8 +251,35 @@ export function ManagePosition() {
     return 'text-green-400';
   };
 
+  const getSuccessModalContent = () => {
+    switch (successType) {
+      case 'approval':
+        return {
+          title: 'USDT Approval Successful',
+          description: 'You can now repay your debt with USDT. This was a one-time setup.'
+        };
+      case 'repay':
+        return {
+          title: 'Repayment Successful',
+          description: 'Your debt has been repaid successfully.'
+        };
+      case 'withdraw':
+        return {
+          title: 'Withdrawal Successful',
+          description: 'Your WBTC collateral has been withdrawn successfully.'
+        };
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
+    <>
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        txHash={successTxHash}
+        {...getSuccessModalContent()}
+      />
+      <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
       <h2 className="text-2xl font-bold text-white mb-6">Manage Position</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -394,5 +438,6 @@ export function ManagePosition() {
         </div>
       </div>
     </div>
+    </>
   );
 }

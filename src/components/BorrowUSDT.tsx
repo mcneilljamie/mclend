@@ -9,12 +9,17 @@ import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { useAssetPrice } from '../hooks/useAssetPrice';
 import { formatUSDT, formatUSD, calculateFee, calculateGrossAmount, calculateSafeMaxBorrow } from '../utils/format';
 import { validateNumericInput, sanitizeNumericInput } from '../utils/validation';
+import { parseTransactionError } from '../utils/errorHandling';
 import { toastManager } from './Toast';
+import { SuccessModal } from './SuccessModal';
 import { Loader, AlertCircle, CheckCircle2, Circle } from 'lucide-react';
 
 export function BorrowUSDT() {
   const { address } = useAccount();
   const [netAmount, setNetAmount] = useState('');
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successTxHash, setSuccessTxHash] = useState('');
+  const [successType, setSuccessType] = useState<'delegation' | 'approval' | 'borrow'>('borrow');
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
@@ -73,10 +78,14 @@ export function BorrowUSDT() {
         functionName: 'approveDelegation',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'Credit delegation approved for unlimited borrows!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('delegation');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setTimeout(() => refetchDelegation(), 2000);
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to approve delegation');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -89,10 +98,14 @@ export function BorrowUSDT() {
         functionName: 'approve',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'USDT approved for unlimited fee collection!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('approval');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setTimeout(() => refetchUsdtAllowance(), 2000);
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to approve USDT');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -122,10 +135,6 @@ export function BorrowUSDT() {
       const ethEstimate = (feeAmount * USDT_TO_ETH_DECIMALS_ADJUSTMENT) / wethPrice;
       const minEthOut = (ethEstimate * (BigInt(BPS_DENOMINATOR) - BigInt(SLIPPAGE.USDT_TO_ETH_BPS))) / BigInt(BPS_DENOMINATOR);
 
-      // IMPORTANT: minMclendOut set to 0 to disable token-side slippage protection.
-      // The McFun AMM does not expose a quote/view function for accurate price estimation.
-      // ETH-side slippage (minEthOut) remains active to protect USDT→WETH swap.
-      // TODO: Add proper MCLEND amount estimation when McFun provides quote function
       const minMclendOut = 0n;
 
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
@@ -136,10 +145,14 @@ export function BorrowUSDT() {
         functionName: 'borrowWithFee',
         args: [netAmountBigInt, minEthOut, minMclendOut, deadline],
       });
-      toastManager.update(toastId, 'success', 'USDT borrowed and MCLEND burned successfully!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('borrow');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setNetAmount('');
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to borrow USDT');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -149,8 +162,35 @@ export function BorrowUSDT() {
     }
   };
 
+  const getSuccessModalContent = () => {
+    switch (successType) {
+      case 'delegation':
+        return {
+          title: 'Credit Delegation Approved',
+          description: 'You can now borrow USDT through McLend. This was a one-time setup.'
+        };
+      case 'approval':
+        return {
+          title: 'USDT Fee Approval Set',
+          description: 'McLend can now collect fees from your borrows. This was a one-time setup.'
+        };
+      case 'borrow':
+        return {
+          title: 'Borrow Successful',
+          description: 'Your USDT has been borrowed and the fee has been swapped and burned as MCLEND.'
+        };
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
+    <>
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        txHash={successTxHash}
+        {...getSuccessModalContent()}
+      />
+      <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
       <div className="mb-4">
         <h2 className="text-2xl font-bold text-white">Borrow USDT</h2>
         <div className="mt-2 flex items-center gap-2">
@@ -308,5 +348,6 @@ export function BorrowUSDT() {
         )}
       </div>
     </div>
+    </>
   );
 }

@@ -7,12 +7,17 @@ import { useTokenBalance, useTokenAllowance } from '../hooks/useTokenBalance';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { formatWBTC } from '../utils/format';
 import { validateNumericInput, sanitizeNumericInput } from '../utils/validation';
+import { parseTransactionError } from '../utils/errorHandling';
 import { toastManager } from './Toast';
+import { SuccessModal } from './SuccessModal';
 import { Loader } from 'lucide-react';
 
 export function DepositWBTC() {
   const { address } = useAccount();
   const [amount, setAmount] = useState('');
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successTxHash, setSuccessTxHash] = useState('');
+  const [successType, setSuccessType] = useState<'approval' | 'deposit'>('deposit');
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
 
@@ -49,12 +54,16 @@ export function DepositWBTC() {
         functionName: 'approve',
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
-      toastManager.update(toastId, 'success', 'WBTC approved successfully!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('approval');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setTimeout(() => {
         refetchAllowance();
       }, 2000);
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to approve WBTC');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -82,10 +91,14 @@ export function DepositWBTC() {
         functionName: 'supply',
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address, 0],
       });
-      toastManager.update(toastId, 'success', 'WBTC deposited successfully!', txHash as unknown as string);
+      toastManager.dismiss(toastId);
+      setSuccessType('deposit');
+      setSuccessTxHash(txHash as string);
+      setSuccessModalOpen(true);
       setAmount('');
     } catch (error: any) {
-      toastManager.update(toastId, 'error', error.message || 'Failed to deposit WBTC');
+      const errorMessage = parseTransactionError(error);
+      toastManager.update(toastId, 'error', errorMessage);
     }
   };
 
@@ -95,8 +108,30 @@ export function DepositWBTC() {
     }
   };
 
+  const getSuccessModalContent = () => {
+    switch (successType) {
+      case 'approval':
+        return {
+          title: 'WBTC Approval Successful',
+          description: 'You can now deposit WBTC into Aave. This was a one-time setup.'
+        };
+      case 'deposit':
+        return {
+          title: 'Deposit Successful',
+          description: 'Your WBTC has been deposited as collateral and is now earning interest.'
+        };
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
+    <>
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        txHash={successTxHash}
+        {...getSuccessModalContent()}
+      />
+      <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
       <div className="mb-4">
         <h2 className="text-2xl font-bold text-white">Deposit WBTC Collateral</h2>
         <div className="mt-2 flex items-center gap-2">
@@ -165,5 +200,6 @@ export function DepositWBTC() {
         )}
       </div>
     </div>
+    </>
   );
 }
