@@ -36,6 +36,10 @@ export const toastManager = {
     toasts = toasts.filter((t) => t.id !== id);
     notifyListeners();
   },
+  dismissAll: () => {
+    toasts = [];
+    notifyListeners();
+  },
   update: (id: string, type: ToastType, message: string, txHash?: string) => {
     const toast = toasts.find((t) => t.id === id);
     if (toast) {
