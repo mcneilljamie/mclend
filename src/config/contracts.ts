@@ -34,6 +34,6 @@ export const MCLEND_FEE_BPS = 40;
 export const BPS_DENOMINATOR = 10000;
 
 export const SLIPPAGE = {
-  USDT_TO_ETH_BPS: 300,
+  USDT_TO_ETH_BPS: 1000,
   ETH_TO_MCLEND_BPS: 5000,
 } as const;
