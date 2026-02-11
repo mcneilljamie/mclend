@@ -170,7 +170,7 @@ export function DepositWBTC() {
               MAX
             </button>
           </div>
-          {wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && (
+          {wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && wbtcBalance > 0n && (
             <p className="text-sm text-gray-400 mt-1">
               Wallet Balance: {formatWBTC(wbtcBalance)} WBTC
             </p>
