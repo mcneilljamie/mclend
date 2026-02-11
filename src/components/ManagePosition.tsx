@@ -248,9 +248,16 @@ export function ManagePosition() {
 
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
           <p className="text-sm text-purple-300 mb-1">Loan to Value (LTV)</p>
-          <p className={`text-3xl font-bold ${totalCollateral === 0n ? 'text-gray-500' : 'text-white'}`}>
-            {totalCollateral === 0n ? '—' : `${formatLTV(ltv)}%`}
-          </p>
+          {totalCollateral === 0n ? (
+            <p className="text-3xl font-bold text-gray-500">—</p>
+          ) : (
+            <>
+              <p className="text-3xl font-bold text-white">
+                {totalDebt === 0n ? '0.00' : formatLTV((totalDebt * 10000n) / totalCollateral)}%
+              </p>
+              <p className="text-xs text-purple-400 mt-1">Max: 73.00%</p>
+            </>
+          )}
         </div>
 
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
