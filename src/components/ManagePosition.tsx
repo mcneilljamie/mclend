@@ -75,20 +75,8 @@ export function ManagePosition() {
 
   const handleApproveUSDT = async () => {
     if (!address) return;
-    const toastId = toastManager.show('loading', 'Approving USDT (Step 1/2)...');
+    const toastId = toastManager.show('loading', 'Approving USDT...');
     try {
-      await writeContract({
-        address: ADDRESSES.USDT as `0x${string}`,
-        abi: IERC20_ABI,
-        functionName: 'approve',
-        args: [ADDRESSES.AAVE_POOL as `0x${string}`, 0n],
-      });
-
-      toastManager.update(toastId, 'loading', 'Waiting for first approval...');
-
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      toastManager.update(toastId, 'loading', 'Approving USDT (Step 2/2)...');
       setPendingTxType('approval');
       await writeContract({
         address: ADDRESSES.USDT as `0x${string}`,

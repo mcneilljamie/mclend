@@ -1,5 +1,4 @@
 import { X, CheckCircle, ExternalLink } from 'lucide-react';
-import { useEffect } from 'react';
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -10,17 +9,6 @@ interface SuccessModalProps {
 }
 
 export function SuccessModal({ isOpen, onClose, txHash, title, description }: SuccessModalProps) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
   if (!isOpen) return null;
 
   return (
