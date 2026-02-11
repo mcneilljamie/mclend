@@ -27,7 +27,6 @@ export function ManagePosition() {
   const { data: accountData, refetch: refetchAccountData } = useUserAccountData(address);
   const { data: debtBalance, refetch: refetchDebtBalance } = useDebtTokenBalance(address);
   const { data: usdtBalance } = useTokenBalance(ADDRESSES.USDT as `0x${string}`, address);
-  const { data: wbtcBalance } = useTokenBalance(ADDRESSES.WBTC as `0x${string}`, address);
   const { data: wbtcPrice } = useAssetPrice(ADDRESSES.WBTC as `0x${string}`);
   const { data: usdtAllowance, refetch: refetchAllowance } = useTokenAllowance(
     ADDRESSES.USDT as `0x${string}`,
@@ -145,8 +144,10 @@ export function ManagePosition() {
     try {
       const parsedAmount = parseUnits(withdrawAmount, TOKEN_DECIMALS.WBTC);
 
-      if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && parsedAmount > wbtcBalance) {
-        toastManager.update(toastId, 'error', 'Withdrawal amount exceeds WBTC balance');
+      // Check if withdrawal exceeds deposited collateral
+      const totalDepositedWBTC = (totalCollateral * (10n ** 8n)) / wbtcPrice;
+      if (parsedAmount > totalDepositedWBTC) {
+        toastManager.update(toastId, 'error', 'Withdrawal amount exceeds deposited collateral');
         return;
       }
 
@@ -195,14 +196,22 @@ export function ManagePosition() {
   };
 
   const handleWithdrawMax = () => {
-    if (!wbtcPrice || totalCollateral === 0n || totalDebt === 0n || liquidationThreshold === 0n) {
-      if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint') {
-        setWithdrawAmount(formatWBTC(wbtcBalance));
-      }
+    if (!wbtcPrice || totalCollateral === 0n) {
       return;
     }
 
-    // Calculate max withdrawable amount while maintaining health factor of 1.5
+    // If no debt, user can withdraw all their collateral
+    if (totalDebt === 0n) {
+      const totalDepositedWBTC = (totalCollateral * (10n ** 8n)) / wbtcPrice;
+      setWithdrawAmount(formatWBTC(totalDepositedWBTC));
+      return;
+    }
+
+    // If there's debt, calculate max withdrawable while maintaining health factor of 1.5
+    if (liquidationThreshold === 0n) {
+      return;
+    }
+
     // Health Factor = (Collateral * Liquidation Threshold) / Debt
     // For HF = 1.5: maxWithdrawableCollateral = totalCollateral - (totalDebt * 1.5 / (liquidationThreshold / 10000))
     const targetHealthFactor = 15000n; // 1.5 with 4 decimals
@@ -218,11 +227,7 @@ export function ManagePosition() {
     // Convert USD value to WBTC amount
     const maxWithdrawableWBTC = (maxWithdrawableUSD * (10n ** 8n)) / wbtcPrice;
 
-    if (wbtcBalance !== undefined && wbtcBalance !== null && typeof wbtcBalance === 'bigint' && maxWithdrawableWBTC > wbtcBalance) {
-      setWithdrawAmount(formatWBTC(wbtcBalance));
-    } else {
-      setWithdrawAmount(formatWBTC(maxWithdrawableWBTC));
-    }
+    setWithdrawAmount(formatWBTC(maxWithdrawableWBTC));
   };
 
   const getHealthFactorColor = (hf: bigint) => {
