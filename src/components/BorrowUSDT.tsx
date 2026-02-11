@@ -235,7 +235,7 @@ export function BorrowUSDT() {
           </div>
           {availableBorrow > 0n && (
             <p className="text-sm text-gray-400 mt-1">
-              Available: {formatUSD(availableBorrow, 10)} | Safe Max: {formatUSD(safeMaxBorrow, 10)}
+              Available: {formatUSD(availableBorrow, 8)} | Safe Max: {formatUSD(safeMaxBorrow, 8)}
             </p>
           )}
         </div>
