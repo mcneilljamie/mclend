@@ -1,4 +1,4 @@
-import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Bitcoin, Shield, TrendingUp, Lock, ArrowRight, Zap, DollarSign, Clock, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import { FeeExplainer } from './FeeExplainer';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
 import { ADDRESSES } from '../config/contracts';
@@ -228,6 +228,53 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 </div>
                 <div className="text-2xl font-bold text-white mb-1">73% LTV</div>
                 <p className="text-sm text-gray-400">Maximum loan-to-value</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-emerald-900/30 to-green-900/20 backdrop-blur-xl rounded-2xl border border-emerald-500/30 p-8 shadow-xl mb-10">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center p-3 bg-emerald-600/20 rounded-xl mb-4 border border-emerald-500/30">
+              <Zap className="w-8 h-8 text-emerald-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-3">See It In Action</h2>
+            <p className="text-gray-300 max-w-2xl mx-auto mb-6">
+              Real transaction on Ethereum mainnet demonstrating the entire flow: deposit WBTC, borrow USDT, atomic swaps through Uniswap and McFun AMM.
+            </p>
+          </div>
+
+          <div className="bg-gray-900/60 border border-emerald-500/20 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex-1">
+                <div className="text-sm text-emerald-300 font-medium mb-2">Transaction Hash</div>
+                <div className="font-mono text-sm text-gray-300 break-all">
+                  0x064b2b979afa369e1cfdc28e83bd7b6ca41d4f64bcadca98a1808c7027f9c934
+                </div>
+              </div>
+              <a
+                href="https://etherscan.io/tx/0x064b2b979afa369e1cfdc28e83bd7b6ca41d4f64bcadca98a1808c7027f9c934"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-colors whitespace-nowrap"
+              >
+                View on Etherscan
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-emerald-950/50 border border-emerald-500/20 rounded-lg p-4">
+                <div className="text-emerald-400 text-xs font-medium uppercase mb-1">WBTC Deposited</div>
+                <div className="text-white font-semibold">Collateral Secured</div>
+              </div>
+              <div className="bg-emerald-950/50 border border-emerald-500/20 rounded-lg p-4">
+                <div className="text-emerald-400 text-xs font-medium uppercase mb-1">USDT Borrowed</div>
+                <div className="text-white font-semibold">Instant Liquidity</div>
+              </div>
+              <div className="bg-emerald-950/50 border border-emerald-500/20 rounded-lg p-4">
+                <div className="text-emerald-400 text-xs font-medium uppercase mb-1">Atomic Swaps</div>
+                <div className="text-white font-semibold">All in One TX</div>
               </div>
             </div>
           </div>
