@@ -319,7 +319,7 @@ export function ManagePosition() {
             {(() => {
               const liqPrice = calculateLiquidationPrice();
               if (!liqPrice) return '—';
-              return formatUSD(liqPrice, 6);
+              return formatUSD(liqPrice, 10);
             })()}
           </p>
         </div>
@@ -329,7 +329,7 @@ export function ManagePosition() {
             <TrendingUp className="w-4 h-4" />
             Total Collateral
           </p>
-          <p className="text-2xl font-bold text-white">{formatUSD(totalCollateral, 6)}</p>
+          <p className="text-2xl font-bold text-white">{formatUSD(totalCollateral, 10)}</p>
         </div>
 
         <div className="bg-red-950/30 rounded-lg p-4 border border-red-500/30">
@@ -337,12 +337,12 @@ export function ManagePosition() {
             <TrendingDown className="w-4 h-4" />
             Total Debt
           </p>
-          <p className="text-2xl font-bold text-white">{formatUSD(totalDebt, 6)}</p>
+          <p className="text-2xl font-bold text-white">{formatUSD(totalDebt, 10)}</p>
         </div>
 
         <div className="bg-purple-950/30 rounded-lg p-4 border border-purple-500/30">
           <p className="text-sm text-purple-300 mb-1">Available to Borrow</p>
-          <p className="text-2xl font-bold text-white">{formatUSD(availableBorrows, 6)}</p>
+          <p className="text-2xl font-bold text-white">{formatUSD(availableBorrows, 10)}</p>
         </div>
       </div>
 
