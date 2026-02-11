@@ -275,8 +275,8 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
                 <div className="text-white font-semibold">Instant Liquidity</div>
               </div>
               <div className="bg-emerald-950/50 border border-emerald-500/20 rounded-lg p-4">
-                <div className="text-emerald-400 text-xs font-medium uppercase mb-1">MCLEND Burned</div>
-                <div className="text-white font-semibold">Fee Reduction</div>
+                <div className="text-emerald-400 text-xs font-medium uppercase mb-1">Atomic Swap</div>
+                <div className="text-white font-semibold">MCLEND Burned</div>
               </div>
             </div>
           </div>
