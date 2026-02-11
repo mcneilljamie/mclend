@@ -1,5 +1,9 @@
 import { ethers } from "ethers";
-import hre from "hardhat";
+import * as dotenv from "dotenv";
+import { readFileSync } from "fs";
+import { join } from "path";
+
+dotenv.config();
 
 async function main() {
   const AAVE_POOL = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2";
@@ -23,11 +27,28 @@ async function main() {
   console.log("  Origination Fee: 0.4% (40 BPS)");
   console.log("=====================================\n");
 
-  console.log("Skipping pre-deployment verification (will verify on-chain after deployment)");
-  console.log();
+  const rpcUrl = process.env.VITE_ETHEREUM_RPC_URL || "https://eth.llamarpc.com";
+  const privateKey = process.env.PRIVATE_KEY;
 
-  const McLendOriginationGate = await hre.ethers.getContractFactory("McLendOriginationGate");
-  const mcLendOriginationGate = await McLendOriginationGate.deploy(
+  if (!privateKey) {
+    throw new Error("PRIVATE_KEY not found in environment variables");
+  }
+
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  const wallet = new ethers.Wallet(privateKey, provider);
+
+  console.log("Deployer address:", wallet.address);
+  const balance = await provider.getBalance(wallet.address);
+  console.log("Deployer balance:", ethers.formatEther(balance), "ETH\n");
+
+  const artifactPath = join(process.cwd(), "artifacts/contracts/McLendOriginationGate.sol/McLendOriginationGate.json");
+  const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
+
+  console.log("Creating contract factory...");
+  const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, wallet);
+
+  console.log("Deploying contract...");
+  const contract = await factory.deploy(
     AAVE_POOL,
     UNISWAP_ROUTER,
     MCFUN_FACTORY,
@@ -37,10 +58,10 @@ async function main() {
     VARIABLE_DEBT_USDT
   );
 
-  console.log("Waiting for deployment...");
-  await mcLendOriginationGate.waitForDeployment();
+  console.log("Waiting for deployment transaction...");
+  await contract.waitForDeployment();
 
-  const address = await mcLendOriginationGate.getAddress();
+  const address = await contract.getAddress();
   console.log("✅ McLendOriginationGate deployed to:", address);
 
   console.log("\n=====================================");
