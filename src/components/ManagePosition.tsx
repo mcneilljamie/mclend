@@ -253,7 +253,7 @@ export function ManagePosition() {
           ) : (
             <>
               <p className="text-3xl font-bold text-white">
-                {totalDebt === 0n ? '0.00' : formatLTV((totalDebt * 10000n) / totalCollateral)}%
+                {formatLTV(ltv)}%
               </p>
               <p className="text-xs text-purple-400 mt-1">Max: 73.00%</p>
             </>
