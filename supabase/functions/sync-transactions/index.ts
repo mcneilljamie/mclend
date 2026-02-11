@@ -24,7 +24,7 @@ const EVENTS = {
   Repay: parseAbiItem('event Repay(address indexed reserve, address indexed user, address indexed repayer, uint256 amount, bool useATokens)'),
 };
 
-const BLOCKS_PER_QUERY = 10000n; // Process 10k blocks at a time
+const BLOCKS_PER_QUERY = 1000n; // Process 1k blocks at a time (RPC limit)
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
