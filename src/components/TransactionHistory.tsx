@@ -1,17 +1,50 @@
-import { ExternalLink, Activity } from 'lucide-react';
+import { ExternalLink, Activity, Loader } from 'lucide-react';
 import { formatDistance } from 'date-fns';
+import { useAccount } from 'wagmi';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../lib/supabase';
 
 interface Transaction {
   id: string;
-  timestamp: number;
-  action: 'Supply' | 'Withdraw' | 'Borrow' | 'Repay' | 'Liquidation';
+  user_address: string;
+  action_type: 'supply' | 'withdraw' | 'borrow' | 'repay';
   amount: string;
-  txHash: string;
+  asset: 'WBTC' | 'USDT';
+  tx_hash: string;
+  created_at: string;
 }
 
-const mockTransactions: Transaction[] = [];
+const actionTypeMap = {
+  supply: 'Supply',
+  withdraw: 'Withdraw',
+  borrow: 'Borrow',
+  repay: 'Repay',
+} as const;
 
 export function TransactionHistory() {
+  const { address } = useAccount();
+
+  const { data: transactions = [], isLoading } = useQuery({
+    queryKey: ['transactions', address],
+    queryFn: async () => {
+      if (!address) return [];
+
+      const { data, error } = await supabase
+        .from('user_actions')
+        .select('*')
+        .eq('user_address', address.toLowerCase())
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        return [];
+      }
+
+      return data as Transaction[];
+    },
+    enabled: !!address,
+  });
   const getActionColor = (action: string) => {
     switch (action) {
       case 'Supply':
@@ -29,7 +62,34 @@ export function TransactionHistory() {
     }
   };
 
-  if (mockTransactions.length === 0) {
+  if (!address) {
+    return (
+      <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
+        <h2 className="text-2xl font-bold text-white mb-4">Transaction History</h2>
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <Activity className="w-16 h-16 text-purple-400/30 mb-4" />
+          <p className="text-gray-400 text-center mb-2">Connect wallet to view history</p>
+          <p className="text-sm text-gray-500 text-center max-w-md">
+            Connect your wallet to see your transaction history with the protocol.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
+        <h2 className="text-2xl font-bold text-white mb-4">Transaction History</h2>
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <Loader className="w-16 h-16 text-purple-400 mb-4 animate-spin" />
+          <p className="text-gray-400 text-center">Loading transactions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (transactions.length === 0) {
     return (
       <div className="bg-gradient-to-br from-gray-900/90 to-purple-900/20 backdrop-blur-xl rounded-xl shadow-2xl shadow-purple-500/10 p-6 border border-purple-500/20">
         <h2 className="text-2xl font-bold text-white mb-4">Transaction History</h2>
@@ -60,26 +120,26 @@ export function TransactionHistory() {
             </tr>
           </thead>
           <tbody>
-            {mockTransactions.map((tx) => (
+            {transactions.map((tx) => (
               <tr key={tx.id} className="border-b border-purple-500/10 hover:bg-purple-950/20">
                 <td className="py-3 px-4 text-sm text-gray-400">
-                  {formatDistance(new Date(tx.timestamp * 1000), new Date(), { addSuffix: true })}
+                  {formatDistance(new Date(tx.created_at), new Date(), { addSuffix: true })}
                 </td>
                 <td className="py-3 px-4">
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getActionColor(
-                      tx.action
+                      actionTypeMap[tx.action_type]
                     )}`}
                   >
-                    {tx.action}
+                    {actionTypeMap[tx.action_type]}
                   </span>
                 </td>
                 <td className="py-3 px-4 text-sm text-white text-right font-medium">
-                  {tx.amount}
+                  {parseFloat(tx.amount).toFixed(tx.asset === 'WBTC' ? 8 : 2)} {tx.asset}
                 </td>
                 <td className="py-3 px-4 text-center">
                   <a
-                    href={`https://etherscan.io/tx/${tx.txHash}`}
+                    href={`https://etherscan.io/tx/${tx.tx_hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-purple-400 hover:text-purple-300 text-sm"
