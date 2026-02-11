@@ -27,7 +27,7 @@ async function main() {
   console.log("  Origination Fee: 0.4% (40 BPS)");
   console.log("=====================================\n");
 
-  const rpcUrl = process.env.VITE_ETHEREUM_RPC_URL || "https://eth.llamarpc.com";
+  const rpcUrl = process.env.VITE_ETHEREUM_RPC_URL || "https://1rpc.io/eth";
   const privateKey = process.env.PRIVATE_KEY;
 
   if (!privateKey) {
@@ -55,7 +55,12 @@ async function main() {
     USDT,
     WETH,
     MCLEND,
-    VARIABLE_DEBT_USDT
+    VARIABLE_DEBT_USDT,
+    {
+      gasLimit: 5000000,
+      maxFeePerGas: ethers.parseUnits("5", "gwei"),
+      maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
+    }
   );
 
   console.log("Waiting for deployment transaction...");
