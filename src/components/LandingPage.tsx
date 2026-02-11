@@ -233,6 +233,8 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
           </div>
         </div>
 
+        <FeeExplainer />
+
         <div className="bg-gradient-to-br from-emerald-900/30 to-green-900/20 backdrop-blur-xl rounded-2xl border border-emerald-500/30 p-8 shadow-xl mb-10">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center p-3 bg-emerald-600/20 rounded-xl mb-4 border border-emerald-500/30">
@@ -279,8 +281,6 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
             </div>
           </div>
         </div>
-
-        <FeeExplainer />
       </div>
     </div>
   );
