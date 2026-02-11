@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
@@ -21,8 +21,9 @@ export function ManagePosition() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState('');
   const [successType, setSuccessType] = useState<'approval' | 'repay' | 'withdraw'>('repay');
+  const [pendingTxType, setPendingTxType] = useState<'approval' | 'repay' | 'withdraw' | null>(null);
   const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const { data: accountData, refetch: refetchAccountData } = useUserAccountData(address);
   const { data: debtBalance, refetch: refetchDebtBalance } = useDebtTokenBalance(address);
@@ -44,6 +45,27 @@ export function ManagePosition() {
   const needsUSDTApproval = usdtAllowance !== undefined && usdtAllowance !== null && typeof usdtAllowance === 'bigint' && repayAmount !== '' &&
     parseUnits(repayAmount || '0', TOKEN_DECIMALS.USDT) > usdtAllowance;
 
+  useEffect(() => {
+    if (isConfirmed && hash && pendingTxType) {
+      toastManager.dismissAll();
+      setSuccessType(pendingTxType);
+      setSuccessTxHash(hash);
+      setSuccessModalOpen(true);
+      setPendingTxType(null);
+
+      if (pendingTxType === 'approval') {
+        setTimeout(() => refetchAllowance(), 2000);
+      } else if (pendingTxType === 'repay') {
+        setTimeout(() => {
+          refetchDebtBalance();
+          refetchAccountData();
+        }, 2000);
+      } else if (pendingTxType === 'withdraw') {
+        setTimeout(() => refetchAccountData(), 2000);
+      }
+    }
+  }, [isConfirmed, hash, pendingTxType, refetchAllowance, refetchDebtBalance, refetchAccountData]);
+
   const handleApproveUSDT = async () => {
     if (!address) return;
     const toastId = toastManager.show('loading', 'Approving USDT (Step 1/2)...');
@@ -60,19 +82,17 @@ export function ManagePosition() {
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       toastManager.update(toastId, 'loading', 'Approving USDT (Step 2/2)...');
-      const approveHash = await writeContract({
+      setPendingTxType('approval');
+      await writeContract({
         address: ADDRESSES.USDT as `0x${string}`,
         abi: IERC20_ABI,
         functionName: 'approve',
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
 
-      toastManager.dismiss(toastId);
-      setSuccessType('approval');
-      setSuccessTxHash(approveHash as string);
-      setSuccessModalOpen(true);
-      await refetchAllowance();
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }
@@ -104,23 +124,18 @@ export function ManagePosition() {
       const isRepayingFull = debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint' && parsedAmount >= debtBalance;
       const amountToRepay = isRepayingFull ? maxUint256 : parsedAmount;
 
-      const txHash = await writeContract({
+      setPendingTxType('repay');
+      await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'repay',
         args: [ADDRESSES.USDT as `0x${string}`, amountToRepay, BigInt(2), address],
       });
 
-      toastManager.dismiss(toastId);
-      setSuccessType('repay');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
       setRepayAmount('');
-      setTimeout(() => {
-        refetchDebtBalance();
-        refetchAccountData();
-      }, 2000);
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }
@@ -168,22 +183,18 @@ export function ManagePosition() {
       }
 
       toastManager.update(toastId, 'loading', 'Withdrawing WBTC...');
-      const txHash = await writeContract({
+      setPendingTxType('withdraw');
+      await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'withdraw',
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address],
       });
 
-      toastManager.dismiss(toastId);
-      setSuccessType('withdraw');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
       setWithdrawAmount('');
-      setTimeout(() => {
-        refetchAccountData();
-      }, 2000);
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }

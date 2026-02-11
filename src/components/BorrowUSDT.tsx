@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS, MCLEND_FEE_BPS, BPS_DENOMINATOR, SLIPPAGE } from '../config/contracts';
@@ -20,8 +20,9 @@ export function BorrowUSDT() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState('');
   const [successType, setSuccessType] = useState<'delegation' | 'approval' | 'borrow'>('borrow');
+  const [pendingTxType, setPendingTxType] = useState<'delegation' | 'borrow' | null>(null);
   const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const isContractDeployed = ADDRESSES.MCLEND_ORIGINATION_GATE !== '0x0000000000000000000000000000000000000000';
 
@@ -61,21 +62,33 @@ export function BorrowUSDT() {
     [availableBorrow]
   );
 
+  useEffect(() => {
+    if (isConfirmed && hash && pendingTxType) {
+      toastManager.dismissAll();
+      setSuccessType(pendingTxType);
+      setSuccessTxHash(hash);
+      setSuccessModalOpen(true);
+      setPendingTxType(null);
+
+      if (pendingTxType === 'delegation') {
+        setTimeout(() => refetchDelegation(), 2000);
+      }
+    }
+  }, [isConfirmed, hash, pendingTxType, refetchDelegation]);
+
   const handleApproveDelegation = async () => {
     const toastId = toastManager.show('loading', 'Approving credit delegation (one-time setup)...');
     try {
-      const txHash = await writeContract({
+      setPendingTxType('delegation');
+      await writeContract({
         address: ADDRESSES.VARIABLE_DEBT_USDT as `0x${string}`,
         abi: VARIABLE_DEBT_TOKEN_ABI,
         functionName: 'approveDelegation',
         args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
       });
-      toastManager.dismiss(toastId);
-      setSuccessType('delegation');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
-      setTimeout(() => refetchDelegation(), 2000);
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }
@@ -111,18 +124,17 @@ export function BorrowUSDT() {
 
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
 
-      const txHash = await writeContract({
+      setPendingTxType('borrow');
+      await writeContract({
         address: ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`,
         abi: MCLEND_ORIGINATION_GATE_ABI,
         functionName: 'borrowWithFee',
         args: [netAmountBigInt, minEthOut, minMclendOut, deadline],
       });
-      toastManager.dismiss(toastId);
-      setSuccessType('borrow');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
       setNetAmount('');
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }

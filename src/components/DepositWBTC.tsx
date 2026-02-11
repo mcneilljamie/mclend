@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS } from '../config/contracts';
@@ -18,8 +18,9 @@ export function DepositWBTC() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState('');
   const [successType, setSuccessType] = useState<'approval' | 'deposit'>('deposit');
+  const [pendingTxType, setPendingTxType] = useState<'approval' | 'deposit' | null>(null);
   const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const { data: wbtcBalance } = useTokenBalance(
     ADDRESSES.WBTC as `0x${string}`,
@@ -37,6 +38,20 @@ export function DepositWBTC() {
   const needsApproval = allowance !== undefined && allowance !== null && typeof allowance === 'bigint' && amount !== '' &&
     parseUnits(amount || '0', TOKEN_DECIMALS.WBTC) > allowance;
 
+  useEffect(() => {
+    if (isConfirmed && hash && pendingTxType) {
+      toastManager.dismissAll();
+      setSuccessType(pendingTxType);
+      setSuccessTxHash(hash);
+      setSuccessModalOpen(true);
+      setPendingTxType(null);
+
+      if (pendingTxType === 'approval') {
+        setTimeout(() => refetchAllowance(), 2000);
+      }
+    }
+  }, [isConfirmed, hash, pendingTxType, refetchAllowance]);
+
   const handleApprove = async () => {
     if (!amount) return;
 
@@ -48,20 +63,16 @@ export function DepositWBTC() {
 
     const toastId = toastManager.show('loading', 'Approving WBTC...');
     try {
-      const txHash = await writeContract({
+      setPendingTxType('approval');
+      await writeContract({
         address: ADDRESSES.WBTC as `0x${string}`,
         abi: IERC20_ABI,
         functionName: 'approve',
         args: [ADDRESSES.AAVE_POOL as `0x${string}`, maxUint256],
       });
-      toastManager.dismiss(toastId);
-      setSuccessType('approval');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
-      setTimeout(() => {
-        refetchAllowance();
-      }, 2000);
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }
@@ -85,18 +96,17 @@ export function DepositWBTC() {
 
     const toastId = toastManager.show('loading', 'Depositing WBTC...');
     try {
-      const txHash = await writeContract({
+      setPendingTxType('deposit');
+      await writeContract({
         address: ADDRESSES.AAVE_POOL as `0x${string}`,
         abi: AAVE_POOL_ABI,
         functionName: 'supply',
         args: [ADDRESSES.WBTC as `0x${string}`, parsedAmount, address, 0],
       });
-      toastManager.dismiss(toastId);
-      setSuccessType('deposit');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
+      toastManager.update(toastId, 'loading', 'Waiting for transaction confirmation...');
       setAmount('');
     } catch (error: any) {
+      setPendingTxType(null);
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
     }
