@@ -39,8 +39,10 @@ export function ManagePosition() {
   const totalDebt = accountData?.[1] || 0n;
   const availableBorrows = accountData?.[2] || 0n;
   const liquidationThreshold = accountData?.[3] || 0n;
-  const ltv = accountData?.[4] || 0n;
+  const maxLtv = accountData?.[4] || 0n;
   const healthFactor = accountData?.[5] || 0n;
+
+  const currentLtv = totalCollateral > 0n ? (totalDebt * 10000n) / totalCollateral : 0n;
 
   const needsUSDTApproval = usdtAllowance !== undefined && usdtAllowance !== null && typeof usdtAllowance === 'bigint' && repayAmount !== '' &&
     parseUnits(repayAmount || '0', TOKEN_DECIMALS.USDT) > usdtAllowance;
@@ -313,9 +315,9 @@ export function ManagePosition() {
           ) : (
             <>
               <p className="text-3xl font-bold text-white">
-                {formatLTV(ltv)}%
+                {formatLTV(currentLtv)}%
               </p>
-              <p className="text-xs text-purple-400 mt-1">Max: 73.00%</p>
+              <p className="text-xs text-purple-400 mt-1">Max: {formatLTV(maxLtv)}%</p>
             </>
           )}
         </div>
