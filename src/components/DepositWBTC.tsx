@@ -19,7 +19,7 @@ export function DepositWBTC() {
   const [successTxHash, setSuccessTxHash] = useState('');
   const [successType, setSuccessType] = useState<'approval' | 'deposit'>('deposit');
   const [pendingTxType, setPendingTxType] = useState<'approval' | 'deposit' | null>(null);
-  const { writeContract, data: hash, isPending, reset: resetWriteContract } = useWriteContract();
+  const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const { data: wbtcBalance } = useTokenBalance(
@@ -54,7 +54,6 @@ export function DepositWBTC() {
 
   const handleCloseSuccessModal = () => {
     setSuccessModalOpen(false);
-    resetWriteContract();
     setSuccessTxHash('');
   };
 

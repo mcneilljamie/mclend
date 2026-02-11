@@ -277,6 +277,11 @@ export function ManagePosition() {
     return 'text-green-400';
   };
 
+  const handleCloseSuccessModal = () => {
+    setSuccessModalOpen(false);
+    setSuccessTxHash('');
+  };
+
   const getSuccessModalContent = () => {
     switch (successType) {
       case 'approval':
@@ -301,7 +306,7 @@ export function ManagePosition() {
     <>
       <SuccessModal
         isOpen={successModalOpen}
-        onClose={() => setSuccessModalOpen(false)}
+        onClose={handleCloseSuccessModal}
         txHash={successTxHash}
         {...getSuccessModalContent()}
       />

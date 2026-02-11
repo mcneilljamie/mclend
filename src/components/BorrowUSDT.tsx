@@ -21,7 +21,7 @@ export function BorrowUSDT() {
   const [successTxHash, setSuccessTxHash] = useState('');
   const [successType, setSuccessType] = useState<'delegation' | 'approval' | 'borrow'>('borrow');
   const [pendingTxType, setPendingTxType] = useState<'delegation' | 'borrow' | null>(null);
-  const { writeContract, data: hash, isPending, reset: resetWriteContract } = useWriteContract();
+  const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const isContractDeployed = ADDRESSES.MCLEND_ORIGINATION_GATE !== '0x0000000000000000000000000000000000000000';
@@ -78,7 +78,6 @@ export function BorrowUSDT() {
 
   const handleCloseSuccessModal = () => {
     setSuccessModalOpen(false);
-    resetWriteContract();
     setSuccessTxHash('');
   };
 
