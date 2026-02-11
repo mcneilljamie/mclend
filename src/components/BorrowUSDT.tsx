@@ -158,7 +158,9 @@ export function BorrowUSDT() {
 
   const handleSafeMax = () => {
     if (safeMaxBorrow > 0n) {
-      setNetAmount(formatUSDT(safeMaxBorrow));
+      // Convert from 8 decimals (Aave base currency) to 6 decimals (USDT)
+      const safeMaxInUSDT = safeMaxBorrow / 100n;
+      setNetAmount(formatUSDT(safeMaxInUSDT));
     }
   };
 
