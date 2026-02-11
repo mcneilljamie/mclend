@@ -209,7 +209,10 @@ export function ManagePosition() {
 
   const handleRepayMax = () => {
     if (debtBalance !== undefined && debtBalance !== null && typeof debtBalance === 'bigint') {
-      setRepayAmount(formatUSDT(debtBalance));
+      // Round down to nearest cent (0.01 USD = 10000 units with 6 decimals)
+      const ONE_CENT = 10000n;
+      const roundedDown = (debtBalance / ONE_CENT) * ONE_CENT;
+      setRepayAmount(formatUSDT(roundedDown));
     }
   };
 
