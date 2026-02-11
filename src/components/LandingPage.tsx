@@ -281,6 +281,20 @@ export function LandingPage({ onLaunchApp }: LandingPageProps) {
             </div>
           </div>
         </div>
+
+        <footer className="mt-12 pt-8 border-t border-gray-800">
+          <div className="text-center">
+            <a
+              href="https://mcfun.io/token/0x2b5876068e36c9781f49d1b7aa1f8dc667b5e0d8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all shadow-lg shadow-purple-500/20"
+            >
+              MCLEND Token
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
   );
