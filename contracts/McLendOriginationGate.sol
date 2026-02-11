@@ -159,7 +159,6 @@ contract McLendOriginationGate is ReentrancyGuard {
      * @param deadline Unix timestamp deadline for swaps
      * @dev Requirements:
      *      - User must have sufficient Aave credit delegation
-     *      - User must approve this contract to spend fee amount in USDT
      *      - All swaps must meet minimum output requirements
      */
     function borrowWithFee(
@@ -188,7 +187,7 @@ contract McLendOriginationGate is ReentrancyGuard {
             grossAmount,
             2,
             0,
-            msg.sender
+            address(this)
         );
 
         emit BorrowExecuted(
@@ -199,7 +198,7 @@ contract McLendOriginationGate is ReentrancyGuard {
             block.timestamp
         );
 
-        usdt.safeTransferFrom(msg.sender, address(this), feeAmount);
+        usdt.safeTransfer(msg.sender, netAmount);
 
         emit FeeCollected(msg.sender, feeAmount, block.timestamp);
 

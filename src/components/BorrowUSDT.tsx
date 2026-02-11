@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits, maxUint256 } from 'viem';
 import { ADDRESSES, TOKEN_DECIMALS, MCLEND_FEE_BPS, BPS_DENOMINATOR, SLIPPAGE } from '../config/contracts';
-import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI, IERC20_ABI } from '../config/abis';
+import { VARIABLE_DEBT_TOKEN_ABI, MCLEND_ORIGINATION_GATE_ABI } from '../config/abis';
 import { useUserAccountData } from '../hooks/useUserAccountData';
 import { useBorrowAllowance } from '../hooks/useDebtToken';
 import { useReserveData, formatAPY } from '../hooks/useReserveData';
@@ -31,13 +31,6 @@ export function BorrowUSDT() {
     ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`
   );
 
-  const { data: usdtAllowance, refetch: refetchUsdtAllowance } = useReadContract({
-    address: ADDRESSES.USDT as `0x${string}`,
-    abi: IERC20_ABI,
-    functionName: 'allowance',
-    args: address ? [address, ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`] : undefined,
-  });
-
   const { variableBorrowRate } = useReserveData(ADDRESSES.USDT as `0x${string}`);
   const { data: wethPrice } = useAssetPrice(ADDRESSES.WETH as `0x${string}`);
 
@@ -61,7 +54,6 @@ export function BorrowUSDT() {
   );
 
   const hasCreditDelegation = creditDelegation !== undefined && creditDelegation !== null && typeof creditDelegation === 'bigint' && creditDelegation >= grossAmount;
-  const hasUsdtAllowance = usdtAllowance !== undefined && usdtAllowance !== null && typeof usdtAllowance === 'bigint' && usdtAllowance >= feeAmount;
 
   const availableBorrow = accountData?.[2] || 0n;
   const safeMaxBorrow = useMemo(
@@ -83,26 +75,6 @@ export function BorrowUSDT() {
       setSuccessTxHash(txHash as string);
       setSuccessModalOpen(true);
       setTimeout(() => refetchDelegation(), 2000);
-    } catch (error: any) {
-      const errorMessage = parseTransactionError(error);
-      toastManager.update(toastId, 'error', errorMessage);
-    }
-  };
-
-  const handleApproveUSDT = async () => {
-    const toastId = toastManager.show('loading', 'Approving USDT for fee collection (one-time setup)...');
-    try {
-      const txHash = await writeContract({
-        address: ADDRESSES.USDT as `0x${string}`,
-        abi: IERC20_ABI,
-        functionName: 'approve',
-        args: [ADDRESSES.MCLEND_ORIGINATION_GATE as `0x${string}`, maxUint256],
-      });
-      toastManager.dismiss(toastId);
-      setSuccessType('approval');
-      setSuccessTxHash(txHash as string);
-      setSuccessModalOpen(true);
-      setTimeout(() => refetchUsdtAllowance(), 2000);
     } catch (error: any) {
       const errorMessage = parseTransactionError(error);
       toastManager.update(toastId, 'error', errorMessage);
@@ -171,15 +143,15 @@ export function BorrowUSDT() {
           title: 'Credit Delegation Approved',
           description: 'You can now borrow USDT through McLend. This was a one-time setup.'
         };
-      case 'approval':
-        return {
-          title: 'USDT Fee Approval Set',
-          description: 'McLend can now collect fees from your borrows. This was a one-time setup.'
-        };
       case 'borrow':
         return {
           title: 'Borrow Successful',
           description: 'Your USDT has been borrowed and the fee has been swapped and burned as MCLEND.'
+        };
+      default:
+        return {
+          title: 'Success',
+          description: 'Operation completed successfully.'
         };
     }
   };
@@ -268,28 +240,14 @@ export function BorrowUSDT() {
           </div>
         )}
 
-        {netAmount && netAmountBigInt > 0n && (
+        {netAmount && netAmountBigInt > 0n && !hasCreditDelegation && (
           <div className="bg-blue-950/30 border border-blue-500/30 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-blue-300 mb-3">Setup Progress</h3>
+            <h3 className="text-sm font-semibold text-blue-300 mb-3">Setup Required</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                {hasCreditDelegation ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-400" />
-                ) : (
-                  <Circle className="w-5 h-5 text-gray-500" />
-                )}
-                <span className={hasCreditDelegation ? "text-green-300 text-sm" : "text-gray-400 text-sm"}>
-                  Credit delegation approved
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {hasUsdtAllowance ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-400" />
-                ) : (
-                  <Circle className="w-5 h-5 text-gray-500" />
-                )}
-                <span className={hasUsdtAllowance ? "text-green-300 text-sm" : "text-gray-400 text-sm"}>
-                  USDT fee approval set
+                <Circle className="w-5 h-5 text-gray-500" />
+                <span className="text-gray-400 text-sm">
+                  Credit delegation approval needed
                 </span>
               </div>
             </div>
@@ -308,45 +266,26 @@ export function BorrowUSDT() {
                 Approving...
               </>
             ) : (
-              'Step 1: Approve Credit Delegation (One-Time)'
+              'Approve Credit Delegation (One-Time Setup)'
             )}
           </button>
         )}
 
-        {hasCreditDelegation && !hasUsdtAllowance && netAmount && netAmountBigInt > 0n && (
+        {hasCreditDelegation && (
           <button
-            onClick={handleApproveUSDT}
-            disabled={isPending || isConfirming || !isContractDeployed}
-            className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2"
+            onClick={handleBorrow}
+            disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow || !isContractDeployed}
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
           >
             {isPending || isConfirming ? (
               <>
                 <Loader className="w-4 h-4 animate-spin" />
-                Approving...
+                Borrowing...
               </>
             ) : (
-              'Step 2: Approve USDT Fee (One-Time)'
+              'Borrow USDT'
             )}
           </button>
-        )}
-
-        {hasCreditDelegation && hasUsdtAllowance && (
-          <>
-            <button
-              onClick={handleBorrow}
-              disabled={isPending || isConfirming || !netAmount || grossAmount > availableBorrow || !isContractDeployed}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
-            >
-              {isPending || isConfirming ? (
-                <>
-                  <Loader className="w-4 h-4 animate-spin" />
-                  Borrowing...
-                </>
-              ) : (
-                'Borrow USDT'
-              )}
-            </button>
-          </>
         )}
       </div>
     </div>
