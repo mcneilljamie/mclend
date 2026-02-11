@@ -58,8 +58,8 @@ async function main() {
     VARIABLE_DEBT_USDT,
     {
       gasLimit: 5000000,
-      maxFeePerGas: ethers.parseUnits("5", "gwei"),
-      maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
+      maxFeePerGas: ethers.parseUnits("1.2", "gwei"),
+      maxPriorityFeePerGas: ethers.parseUnits("0.3", "gwei")
     }
   );
 
